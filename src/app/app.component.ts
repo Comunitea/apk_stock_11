@@ -3,8 +3,17 @@ import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+//Paginas
 import { HomePage } from '../pages/home/home';
 import { ListPage } from '../pages/list/list';
+import { LoginPage } from '../pages/login/login';
+import { PickingPage } from '../pages/picking/picking';
+import { PickingFormPage } from '../pages/picking-form/picking-form';
+
+//Providers
+import {Storage} from '@ionic/storage';
+import { HttpClient } from '@angular/common/http';
+
 
 @Component({
   templateUrl: 'app.html'
@@ -16,12 +25,14 @@ export class MyApp {
 
   pages: Array<{title: string, component: any}>;
 
+
   constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
     this.initializeApp();
 
     // used for an example of ngFor and navigation
     this.pages = [
-      { title: 'Home', component: HomePage },
+      { title: 'Login', component: LoginPage },
+      { title: 'Albaranes', component: PickingPage },
       { title: 'List', component: ListPage }
     ];
 
@@ -33,6 +44,7 @@ export class MyApp {
       // Here you can do any higher level native things you might need.
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.nav.setRoot(LoginPage);
     });
   }
 
@@ -41,4 +53,5 @@ export class MyApp {
     // we wouldn't want the back button to show in this scenario
     this.nav.setRoot(page.component);
   }
+
 }

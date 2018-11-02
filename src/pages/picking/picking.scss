@@ -1,0 +1,20 @@
+page-picking { 
+    .state_done {
+        background-color: color($colors, odooprimary);
+        color: color($colors, odoolight);
+        
+    }
+    .state_assigned {
+        background-color: color($colors, odoo);
+        color: color($colors, odoolight);
+        
+    }
+    .state_cancel {
+        background-color: color($colors, waiting);
+        color: color($colors, dark);
+        
+    }
+    
+}
+
+

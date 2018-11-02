@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import {Storage} from '@ionic/storage';
+import { IonicPage, NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
@@ -7,8 +8,21 @@ import { NavController } from 'ionic-angular';
 })
 export class HomePage {
 
-  constructor(public navCtrl: NavController) {
+  constructor(public toast: ToastController, public navCtrl: NavController) {
 
+  }
+  presentToast(message, duration=30, position='top') {
+    let toast = this.toast.create({
+      message: message,
+      duration: duration,
+      position: position
+    });
+  
+    toast.onDidDismiss(() => {
+      console.log('Dismissed toast');
+    });
+  
+    toast.present();
   }
 
 }

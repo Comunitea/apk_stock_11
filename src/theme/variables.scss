@@ -32,13 +32,52 @@ $app-direction: ltr;
 // to match your app's branding. Ionic uses a Sass map of
 // colors so you can add, rename and remove colors as needed.
 // The "primary" color is the only required color in the map.
-
+/*
+$colors: (
+  primary:    #488aff,
+  secondary:  #32db64,
+  danger:     #f53d3d,
+  light:      #f4f#7c7bad
+  dark:       #222#7c7bad
+);*/
 $colors: (
   primary:    #488aff,
   secondary:  #32db64,
   danger:     #f53d3d,
   light:      #f4f4f4,
-  dark:       #222
+  dark:       #222,
+  footers:    #000000,
+  odoo:       #875a7b,
+  odoolight:  #f0e5ed,
+  odooprimary: #21b799,
+  odoodark:   #880264,
+  operations: #5C5B80,
+  odoowhite: #ffffff,
+  sales: #E46F78,
+  websites: #5B899E,
+  odootext: #7C7BAD,
+  product: #875a7b,
+  package: #7c7bad,
+  lot: #73a4f7,
+  location: #5C5B80,
+  tree1: #f9f9f9,
+  tree2: #f1f1f1,
+
+
+  done :#32db64,
+  waiting: #5C5B80,
+  confirmed: #5C5B80,
+  warning: rgb(223, 124, 43),
+  cancel: #888888,
+  error : #ff0000,
+  picking: #7c7bad,
+  assigned: #73a4f7,
+  draft: #888888
+
+  
+
+
+
 );
 
 
@@ -53,7 +92,7 @@ $colors: (
 // --------------------------------------------------
 // Material Design only Sass variables can go here
 
-
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 
 // App Windows Variables

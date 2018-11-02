@@ -1,0 +1,30 @@
+bottom-badge {
+
+    .notification-button {            
+        padding: 0px;
+        margin: 0px;
+        overflow: visible!important;
+    }
+    .nb-bb {
+        font-size: x-small;
+        margin: 0px;
+        top: 0px;
+        height: 50%;
+        right: -20px;
+        vertical-align: top;
+        align-content: flex-end;
+    }
+
+    .nb-danger {
+        background-color: red;
+        border-radius: 20%;
+    }
+    .nb-done {
+        background-color: green;
+        border-radius: 20%;
+    }
+    .nb-cancel {
+        background-color: gray;
+        border-radius: 20%;
+    }
+}

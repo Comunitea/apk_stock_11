@@ -13,4 +13,154 @@
 //
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
-// automatically applied to the <body> element in the app.
+// automatically applied to the <body> element in the app. 
+
+.delayed_0 {
+    color:  color($colors, done);;
+}
+.delayed_1 {
+    color:  color($colors, warning);;
+}
+.delayed_2 {
+    color:  color($colors, danger);;
+}
+
+.item_assigned {
+    color: color($colors, assigned);
+}
+.item_error {
+    color: color($colors, error);
+}
+.item_warning {
+    color: color($colors, warning);
+}
+.item_done{
+    color: color($colors, done);
+}
+.item_waiting {
+    color: color($colors, waiting);
+}
+.item_cancel {
+    color: color($colors, cancel)
+}
+
+.no-margin {
+    padding: 0px;
+}
+.no-padding {
+    padding: 0px;
+}
+
+ion-badge {
+    
+    padding: 4px;
+    margin: 4px;
+}
+.all0 {
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+.w100{
+    width: 100%;
+    
+}
+.w75{
+    width: 75%;
+    
+}
+.w50{
+    width: 50%;
+    
+}
+.w33{
+    width: 33%;
+    
+}
+.w33{
+    width: 33%;
+    
+}
+.w25{
+    width: 25%;
+}
+.w20{
+    width: 20%;
+}
+.item-block{
+    min-height: 1.5rem;
+}
+.item-md ion-avatar[item-left],
+.item-md ion-thumbnail[item-left],
+.item-md ion-avatar[item-start],
+.item-md ion-thumbnail[item-start] {
+  margin: 2px 4px 2px 0;
+}
+
+.item-md ion-avatar[item-right],
+.item-md ion-thumbnail[item-right],
+.item-md ion-avatar[item-end],
+.item-md ion-thumbnail[item-end] {
+  margin: 2px;
+}
+.item-md {
+    padding-left: 4px;
+}
+.label-md{
+    padding: 4px;
+    margin: 4px;
+}
+.badge-md {
+    padding: 4px;
+    
+}
+.action-sheets-move-page {
+  .alert_state_error {
+    
+    color: color($colors, error);
+    
+  }
+  .alert_state_done {
+    
+    color: color($colors, done);
+    
+  }
+  .alert_state_back {
+    
+    color: color($colors, warning);
+    
+  }
+  .ion-icon{
+      .package {
+          name: 'cube';
+          color:  color($colors, package);
+      }
+      .lot {
+          name: 'barcode';
+          color:  color($colors, lot);
+      }
+      .product {
+        name: 'ribbon';
+        color:  color($colors, product);
+    }
+      .location {
+        name: 'filling';
+        color:  color($colors, location);
+      }
+      .verform {
+        name: 'eye';
+        color:  color($colors, odoo);
+
+      }
+  }
+  move-line{
+      .small {
+          margin: 0px;
+          border: 1px;
+          padding: 2px;
+      }
+  }
+
+  
+}

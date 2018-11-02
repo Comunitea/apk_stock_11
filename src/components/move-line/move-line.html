@@ -1,0 +1,98 @@
+<!-- Generated template for the StockOperationComponent component -->
+
+
+<!--ion-item-sliding class="all0" [hidden] = "move_filter=='Pendientes' && move.pda_done"  >
+    <ion-item no-lines class="all0" style="margin: 0px;"> 
+      <ion-label class="all0" style="margin: 0px;" color="odoo" (click)="open_move(move.id)">  {{ move.product_id.name || 'SIN PRODUCTO'}}
+      <div class="all0" style="margin: 0px;" *ngIf= "move.tracking!='none'">
+      <ion-badge item-end class="b-op" style="margin: 0px;" *ngIf= "move.tracking!='none'" (click)="open_package(move.lot_id[0])">
+           {{ move.lot_id && move.lot_id.name || "Nuevo lote"}}
+      </ion-badge>
+      </div>
+      </ion-label>
+      <bottom-badge item-end [btext]="(move.product_uom_qty || 0.00).toString() + ' ' + (move.product_uom_id && move.product_uom_id.name)" [btype]="2" [bvalue]="move.qty_done" 
+      style="margin: 0px; border: 0px; padding: 0px">
+      </bottom-badge>
+
+    
+  </ion-item>  
+
+  <ion-item-options *ngIf="process_from_tree" side="right" class="all0">
+    <button ion-button color="danger" [hidden] = "!move.pda_done==0" (click)="open_move(move.id, false)"><ion-icon name="trash"></ion-icon>
+      {{'Deshacer'}}
+    </button>
+    <button ion-button color="secondary" [hidden] = "move.qty_done==0" (click)="open_move(move.id, false)"><ion-icon name="checkmark-circle-outline"></ion-icon>
+      {{'Procesar'}}
+    </button>
+  </ion-item-options>
+</ion-item-sliding-->
+
+<ion-item-sliding class="all0" [hidden] = "move_filter=='Pendientes' && move.pda_done">
+    <ion-item class="all0" [color]="back_color == 0 ? 'tree1' : 'tree2'"> 
+       
+        <ion-avatar item-start style="{margin: 0px,0px,0px,0px;}">
+            <img src="data:image/png;base64,{{move.product_id.image}}">
+        </ion-avatar>
+
+        <h2 class="all0" >
+        <button *ngIf="move.product_id" text-wrap ion-button item-start round color="product" (click)="click('product_id')"><ion-icon  name='ribbon' ></ion-icon>
+            {{ move.product_id && move.product_id.name || 'Sin paquete' }}
+        </button>
+        </h2>
+        <h2 class="all0">
+        <button *ngIf="move.package_id" ion-button outline item-start round color="package" (click)="click('package_id')"><ion-icon  name='cube' ></ion-icon>
+            {{ move.package_id && move.package_id.name || 'Sin paquete' }}
+        </button>
+        <button ion-button [outline] = "move.checked.lot_id" item-start round *ngIf="!move.package_id && (move.tracking!='none' || move.lot_id)" style="{'background-color': white }" [color]="!move.lot_id && move.tracking!='none' ? 'danger' : 'lot'" (click)="click('lot_id')">
+            <ion-icon name='barcode'></ion-icon>
+            {{move.lot_id && move.lot_id.name || 'Sin lote' }}
+        </button>
+
+        <!--button ion-button [outline] = "move.checked.location_id" item-end round [color]="!move.location_id ? 'danger' : 'location'" (click)="click('location_id')"><ion-icon name="filling"></ion-icon>
+            {{ move.location_id && move.location_id.name || 'Sin Origen' }}
+        </button>
+         <button *ngIf="false" ion-button outline round *ngIf="move.location_dest_id.need_pack || move.result_package_id" [color]="move.result_package_id ? 'danger' : 'package'" (click)="click('result_package_id')"><ion-icon name='logo-dropbox' ></ion-icon>
+            {{ move.result_package_id && move.result_package_id.name || 'Sin paquete' }}
+        </button>
+        
+         <button *ngIf="false" ion-button [outline] = "move.checked.location_dest_id" item-end round [color]="!move.location_dest_id ? 'danger' : 'location'" (click)="click('location_dest_id')"><ion-icon name="filling"></ion-icon>
+            {{ move.location_dest_id && move.location_dest_id.name || 'Sin Destino' }}
+        </button>
+        <button ion-button outline round item-start style="{'background-color': white }" color='odoo'>
+            {{move.qty_done.toString() + ' de ' + move.product_uom_qty.toString() + ' ' + move.product_uom_id['name']}} 
+        </button>
+        
+        
+        <ion-note item-end [color]="(move.qty_done >= move.product_uom_qty) ? 'done' : 'waiting'">{{move.qty_done.toString() + ' de ' + move.product_uom_qty.toString() + ' ' + move.product_uom_id['name']}} </ion-note>
+        <bottom-badge item-end [btext]="(move.product_uom_qty || 0.00).toString() + ' ' + (move.product_uom_id && move.product_uom_id.name)" 
+            [btype]="2" [bvalue]="move.qty_done" style="margin: 0px; border: 0px; padding: 0px"
+            (click)="click('product_qty')">
+        </bottom-badge-->
+
+        </h2>
+        
+            <ion-note [color]="(move.qty_done >= move.product_uom_qty) ? 'warning' : 'waiting'">
+                {{move.qty_done.toString() + ' de ' + move.product_uom_qty.toString() + ' ' + move.product_uom_id['name']}}
+            </ion-note>
+        
+        <!--button ion-button clear item-end (click)="open_move(move.id)">Ver</button-->
+    </ion-item>
+    <ion-item-options side="left" *ngIf="move.checked.move_id && !move.pda_done">
+      <button ion-button color="odooprimary">
+        <ion-icon name="done-all"></ion-icon>
+        Hacer
+      </button>
+      <button ion-button color="warning" *ngIf="move.pda_done">
+        <ion-icon name="backspace"></ion-icon>
+        Deshacer
+      </button>
+    </ion-item-options>
+    <ion-item-options side="right">
+      <button ion-button color="odoo">
+        <ion-icon name="refresh"></ion-icon>
+        Refrescar
+      </button>
+    </ion-item-options>
+</ion-item-sliding>
+
+    

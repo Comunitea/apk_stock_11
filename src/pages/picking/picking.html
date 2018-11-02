@@ -1,0 +1,96 @@
+<!--
+  Generated template for the PickingPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Picking</ion-title>
+    <ion-buttons end>
+       <button ion-button icon-only item-end (click)="change_hide_scan_form()" color="primary">
+        <ion-icon name="barcode"></ion-icon>
+    </button>
+    </ion-buttons>
+  </ion-navbar>
+   
+</ion-header>
+
+<ion-content padding>
+  
+
+    <div *ngIf="type_header">
+      <ion-segment *ngIf="picking_types">
+        <ion-segment-button value="All" (click)="filter_picks('type', false)"><ion-icon name="apps"></ion-icon></ion-segment-button>
+        <ion-segment-button *ngFor="let pick_type of picking_types" value="{{ pick_type && pick_type['name']}}" (click)="filter_picks(type, pick_type.id)">{{pick_type.short_name || pick_type.name }}</ion-segment-button>
+      </ion-segment>
+      <ion-segment *ngIf="picking_states">
+        <ion-segment-button value="All" (click)="filter_picks('state', false)"><ion-icon name="apps"></ion-icon></ion-segment-button>
+        <ion-segment-button *ngFor="let state of picking_states" value="{{ state }}" (click)="filter_picks('state', state)">{{ state }}</ion-segment-button>
+      </ion-segment>
+    </div>
+    <div >
+      <ion-searchbar (ionInput)="getItems($event)" placeholder="Buscar albarán"></ion-searchbar>
+    </div>
+    <!--div>
+      <ion-item *ngFor="let stock_picking of stock_picking_ids" >
+        <button ion-button 
+          color="itemerror" 
+          [ngClass]="{'state_done': stock_picking['state'] == 'done', 
+                      'state_assigned': stock_picking['state'] == 'assigned',
+                      'state_assigned': stock_picking['state'] == 'waiting'
+                      }"  
+                      (click)="open_pick(stock_picking.id)" 
+                      item-end>
+                      {{ stock_picking && stock_picking['name']}}
+        </button>      
+      </ion-item>
+      
+    </div-->
+
+    <div>
+    
+      <ion-item *ngFor="let stock_picking of currentPicks" >
+      <ion-icon name="calendar" item-start
+      [ngClass]="{'delayed_0': stock_picking.delayed == 0, 'delayed_1': stock_picking.delayed == 1, 'delayed_2': stock_picking.delayed == 2}">
+      </ion-icon>
+      <icon-pick-state [state]="stock_picking.state" item-start >{{stock_picking.state}}</icon-pick-state>
+     
+    
+        <button ion-button 
+          color="itemerror" 
+          [ngClass]="{'state_done': stock_picking['state'] == 'done', 
+                      'state_assigned': stock_picking['state'] == 'assigned',
+                      'state_assigned': stock_picking['state'] == 'waiting'
+                      }"  
+                      (click)="open_pick(stock_picking.id)" 
+                      item-end
+                      alt="Prueba de conceoti">
+                      {{ stock_picking && stock_picking['name']}}
+        </button>      
+      
+      </ion-item>
+      
+    </div>
+
+</ion-content>
+<ion-footer>
+
+  <ion-item>
+    <button ion-button color="light">Todos</button>
+    <button ion-button color="light">INPUT</button>
+  </ion-item>
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+    
+      <button ion-button icon-only item-end clear (click)="submitScan()">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>

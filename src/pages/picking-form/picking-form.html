@@ -1,0 +1,116 @@
+<!--
+  Generated template for the PickingPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    
+    
+    <ion-title>{{ picking && picking.name }}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="primary"  *ngIf="!header" (click)="change_header()">
+        <ion-icon name="clipboard"></ion-icon>
+      </button>
+      <button ion-button icon-only color="primary"  *ngIf="header" (click)="change_header()">
+        <ion-icon name="list"></ion-icon>
+      </button>
+       <button ion-button icon-only item-end (click)="change_hide_scan_form()" color="primary">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+       
+    </ion-buttons>
+  </ion-navbar>
+   
+</ion-header>
+
+<ion-content >
+  <div *ngIf="header && picking" >
+    
+    <ion-list>
+    <ion-item no-lines>
+        <button ion-button outline color ="primary" item-start>
+          {{ 'Usuario: ' + picking.user_id && picking.user_id[1] }}
+        </button>
+        <button ion-button color ="primary" item-end>
+          {{picking.state}}
+        </button>
+      </ion-item>
+
+      <ion-item>Origen: 
+        <button *ngIf="picking.location_id"  ion-button class="w50" color ="odoo" item-end (click)="open_location(picking.location_id.id)">
+          {{picking.location_id.name}}
+        </button>
+      </ion-item>
+    <ion-item>Destino
+      <button *ngIf="picking.location_dest_id"  ion-button class="w50"  color ="odoo" item-end (click)="open_location(picking.location_dest_id.id)">
+        {{picking.location_dest_id.name}}
+      </button>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="alert" item-start color="warning"></ion-icon>
+      <ion-label>{{'Pendientes: ' + (picking.moves_waiting).length}}</ion-label>
+      <button ion-button outline item-end>Ver</button>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="checkmark-circle" item-start color="odooprimary"></ion-icon>
+      <ion-label>{{'Realizado: ' + (picking.moves_done).length}}</ion-label>
+      <button ion-button outline item-end>Ver</button>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="calendar" item-start
+      [ngClass]="{'delayed_0': picking.delayed == 0, 'delayed_1': picking.delayed == 1, 'delayed_2': picking.delayed == 2}">
+      </ion-icon>
+      <ion-label> {{ picking.scheduled_date}}</ion-label>
+    </ion-item>
+    
+    </ion-list>
+
+  </div>
+<div *ngIf="!header && picking">
+<ion-item no-lines>
+ 
+        
+        <!--button ion-button item-end outline (click)="reorder_picks()" color='odoo' >Reordenar</button-->
+  <ion-select [(ngModel)]="filter_moves" interface="popover" color="operaciones" (ionChange)='onchange_filter_moves()' item-start>
+    <ion-option value="T">Todos</ion-option>
+    <ion-option value="P">Pendientes</ion-option>
+    <ion-option value="R">Realizadas</ion-option>
+  </ion-select>
+  <button ion-button color ="odootext" item-end (click)="reorder_moves()">Reordenar
+    <ion-icon name="shuffle"></ion-icon>              
+  </button>
+        <!--button ion-button item-end outline (click)="seeAll()" color='odoo' >{{whatOps}}</button-->
+        <!--ion-badge item-start (click)="reorder_picks()" color='odoo' >Reordenar</ion-badge>
+        <ion-badge item-start (click)="seeAll()" color='odoo' >{{whatOps}}</ion-badge-->
+  </ion-item>
+
+  <div *ngIf="!cargar && picking">
+  <ion-list class="all0">
+    <move-line *ngFor="let move of picking['moves']; let i = index" class="all0 small" [back_color]="i % 2" [move]="move" [picking] = 'picking' [filter]="filter_moves" (notify) = "move_done(id, $event)" 
+        [hidden]="filter_moves=='Pendientes' && move.pda_done || filter_moves=='Realizadas' && !move.pda_done">
+    </move-line>
+
+
+  </ion-list>
+   
+  </div>
+</div>
+</ion-content>
+
+<ion-footer>
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+    
+      <button ion-button icon-only item-end clear (click)="submitScan()">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>

@@ -1,0 +1,22 @@
+<!-- Generated template for the BottomBadgeComponent component -->
+
+<!--button class="notification-button" ion-button clear >
+  {{ btext }}
+  <ion-icon name="">
+    <ion-badge [ngClass]="{'nb-danger': btype == '1', 
+                           'nb-done': btype == '2'}">
+
+      {{bvalue || 0.00}}
+    </ion-badge>
+  </ion-icon>    
+</button-->
+
+<div>
+<button class="notification-button" ion-button clear >
+    {{ btext }}
+</button>
+<ion-badge small class="nb-bb" [ngClass]="{'nb-danger1': btype == '1', 'nb-done1': btype == '2'}">
+    {{bvalue}}
+</ion-badge>
+
+</div>
