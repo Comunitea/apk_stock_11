@@ -67,10 +67,10 @@ move-line {
   }
   
   .item-md .item-button {
-    padding: 1px 5px 1px 5px;
-    height: 20px;
+    padding: 5px 5px 5px 5px;
+    min-height: 20px;
     font-size: 1.2rem;
-    margin: 1px 1px 1px 1px;
+    margin: 3px 1px 3px 1px;
     text-transform: capitalize;  
   }
   
@@ -148,6 +148,7 @@ move-line {
     height: 20px;
     font-size: 1.2rem;
     margin: 1px 1px 1px 5px;
+    float: right
   }
   button {
     text-transform: capitalize;  

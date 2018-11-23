@@ -13,6 +13,17 @@
     
     <ion-title>{{ picking && picking.name }}</ion-title>
     <ion-buttons end>
+     <!--button ion-button icon-only item-end (click)="lee_form()">
+        <ion-icon name="headphone"></ion-icon>
+      </button-->
+
+      <button ion-button icon-only item-end (click)="presentOptions()">
+        <ion-icon name="apps"></ion-icon>
+      </button>
+      <!--button ion-button icon-only item-end (click)="change_escuchando()">
+        <ion-icon *ngIf="voice && escuchando" name="mic"></ion-icon>
+        <ion-icon *ngIf="!voice || !escuchando" name="mic-off"></ion-icon>
+      </button>
       <button ion-button icon-only color="primary"  *ngIf="!header" (click)="change_header()">
         <ion-icon name="clipboard"></ion-icon>
       </button>
@@ -21,7 +32,7 @@
       </button>
        <button ion-button icon-only item-end (click)="change_hide_scan_form()" color="primary">
         <ion-icon name="barcode"></ion-icon>
-      </button>
+      </button-->
        
     </ion-buttons>
   </ion-navbar>
@@ -29,13 +40,22 @@
 </ion-header>
 
 <ion-content >
+<ion-list>
+    <ion-item *ngFor="let match of matches">
+      {{ match }}
+    </ion-item>
+      </ion-list>
   <div *ngIf="header && picking" >
     
     <ion-list>
     <ion-item no-lines>
-        <button ion-button outline color ="primary" item-start>
-          {{ 'Usuario: ' + picking.user_id && picking.user_id[1] }}
+        <button ion-button color="primary" item-start>
+          {{ picking.user_id && picking.user_id.name }}
+           <ion-icon name="contact"></ion-icon>
         </button>
+        <!--button ion-button outline color ="primary" item-start>
+          {{ 'Voice control: ' + voice}}
+        </button-->
         <button ion-button color ="primary" item-end>
           {{picking.state}}
         </button>
@@ -51,12 +71,12 @@
         {{picking.location_dest_id.name}}
       </button>
     </ion-item>
-    <ion-item>
+    <ion-item (click)="open_lines('P')">
       <ion-icon name="alert" item-start color="warning"></ion-icon>
       <ion-label>{{'Pendientes: ' + (picking.moves_waiting).length}}</ion-label>
-      <button ion-button outline item-end>Ver</button>
+      <button ion-button outline item-end >Ver</button>
     </ion-item>
-    <ion-item>
+    <ion-item (click)="open_lines('R')">
       <ion-icon name="checkmark-circle" item-start color="odooprimary"></ion-icon>
       <ion-label>{{'Realizado: ' + (picking.moves_done).length}}</ion-label>
       <button ion-button outline item-end>Ver</button>
@@ -71,35 +91,29 @@
     </ion-list>
 
   </div>
-<div *ngIf="!header && picking">
-<ion-item no-lines>
- 
-        
+
+       
         <!--button ion-button item-end outline (click)="reorder_picks()" color='odoo' >Reordenar</button-->
-  <ion-select [(ngModel)]="filter_moves" interface="popover" color="operaciones" (ionChange)='onchange_filter_moves()' item-start>
+  <!--ion-select [(ngModel)]="filter_moves" interface="popover" color="operaciones" (ionChange)='onchange_filter_moves()' item-start>
     <ion-option value="T">Todos</ion-option>
     <ion-option value="P">Pendientes</ion-option>
     <ion-option value="R">Realizadas</ion-option>
   </ion-select>
   <button ion-button color ="odootext" item-end (click)="reorder_moves()">Reordenar
     <ion-icon name="shuffle"></ion-icon>              
-  </button>
+  </button-->
         <!--button ion-button item-end outline (click)="seeAll()" color='odoo' >{{whatOps}}</button-->
         <!--ion-badge item-start (click)="reorder_picks()" color='odoo' >Reordenar</ion-badge>
         <ion-badge item-start (click)="seeAll()" color='odoo' >{{whatOps}}</ion-badge-->
-  </ion-item>
-
-  <div *ngIf="!cargar && picking">
+  <div *ngIf="!header && picking">
   <ion-list class="all0">
-    <move-line *ngFor="let move of picking['moves']; let i = index" class="all0 small" [back_color]="i % 2" [move]="move" [picking] = 'picking' [filter]="filter_moves" (notify) = "move_done(id, $event)" 
+    <move-line *ngFor="let move of picking['moves']; let i = index" class="all0 small" [back_color]="(1+i) % 2" [move]="move" [picking] = 'picking' [filter]="filter_moves" (notify) = "move_done(id, $event)" 
         [hidden]="filter_moves=='Pendientes' && move.pda_done || filter_moves=='Realizadas' && !move.pda_done">
     </move-line>
-
-
-  </ion-list>
-   
+    </ion-list>
   </div>
-</div>
+ 
+
 </ion-content>
 
 <ion-footer>

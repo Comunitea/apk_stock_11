@@ -11,6 +11,14 @@
     </button>
     <ion-title>Picking</ion-title>
     <ion-buttons end>
+    <button ion-button icon-only item-end (click)="lee_form()">
+        <ion-icon name="megaphone"></ion-icon>
+      </button>
+    <button ion-button icon-only item-end (click)="change_escuchando()">
+      <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+      <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+    </button>
+    
        <button ion-button icon-only item-end (click)="change_hide_scan_form()" color="primary">
         <ion-icon name="barcode"></ion-icon>
     </button>
@@ -20,8 +28,10 @@
 </ion-header>
 
 <ion-content padding>
-  
-
+    <!--ion-item *ngFor="let match of matches">
+          {{ match }}
+    </ion-item-->
+    
     <div *ngIf="type_header">
       <ion-segment *ngIf="picking_types">
         <ion-segment-button value="All" (click)="filter_picks('type', false)"><ion-icon name="apps"></ion-icon></ion-segment-button>
@@ -53,13 +63,13 @@
 
     <div>
     
-      <ion-item *ngFor="let stock_picking of currentPicks" >
+      <ion-item *ngFor="let stock_picking of currentPicks; let i = index" >
       <ion-icon name="calendar" item-start
-      [ngClass]="{'delayed_0': stock_picking.delayed == 0, 'delayed_1': stock_picking.delayed == 1, 'delayed_2': stock_picking.delayed == 2}">
+        [ngClass]="{'delayed_0': stock_picking.delayed == 0, 'delayed_1': stock_picking.delayed == 1, 'delayed_2': stock_picking.delayed == 2}">
       </ion-icon>
       <icon-pick-state [state]="stock_picking.state" item-start >{{stock_picking.state}}</icon-pick-state>
      
-    
+
         <button ion-button 
           color="itemerror" 
           [ngClass]="{'state_done': stock_picking['state'] == 'done', 
@@ -69,7 +79,7 @@
                       (click)="open_pick(stock_picking.id)" 
                       item-end
                       alt="Prueba de conceoti">
-                      {{ stock_picking && stock_picking['name']}}
+                      {{ stock_picking && stock_picking['name']}} / {{i}}
         </button>      
       
       </ion-item>

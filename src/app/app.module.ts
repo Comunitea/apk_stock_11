@@ -1,6 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { IonicApp, IonicErrorHandler, IonicModule} from 'ionic-angular';
+import { SpeechRecognition } from '@ionic-native/speech-recognition';
+import { NativeAudio } from '@ionic-native/native-audio';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -13,6 +15,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { HttpClientModule} from '@angular/common/http';
 
+import { TextToSpeech } from '@ionic-native/text-to-speech';
 //Providers
 import { IonicStorageModule } from '@ionic/storage'
 
@@ -26,6 +29,7 @@ import { BottomBadgeComponent} from '../components/bottom-badge/bottom-badge'
 import { MoveLineComponent} from '../components/move-line/move-line'
 import { IconPickStateComponent} from '../components/icon-pick-state/icon-pick-state'
 import { MatIconModule } from "@angular/material/icon";
+import { IonMarqueeModule } from "ionic-marquee";
 
 @NgModule({
   declarations: [
@@ -38,13 +42,16 @@ import { MatIconModule } from "@angular/material/icon";
     MoveFormPage,
     BottomBadgeComponent,
     MoveLineComponent,
-    IconPickStateComponent
+    IconPickStateComponent,
+    
+
   ],
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
     IonicStorageModule.forRoot(),
-    MatIconModule
+    MatIconModule,
+    IonMarqueeModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -63,12 +70,16 @@ import { MatIconModule } from "@angular/material/icon";
   providers: [
     StatusBar,
     SplashScreen,
+    SpeechRecognition,
+    TextToSpeech,
+    NativeAudio,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     OdooToolsProvider,
     HttpClientModule,
     OdooScannerProvider,
     OdooConnectorProvider,
     OdooStockPickingProvider,
+
 
   ]
 })

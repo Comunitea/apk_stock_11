@@ -9,7 +9,7 @@ import { ListPage } from '../pages/list/list';
 import { LoginPage } from '../pages/login/login';
 import { PickingPage } from '../pages/picking/picking';
 import { PickingFormPage } from '../pages/picking-form/picking-form';
-
+import { OdooToolsProvider } from '../providers/odoo-tools/odoo-tools'
 //Providers
 import {Storage} from '@ionic/storage';
 import { HttpClient } from '@angular/common/http';
@@ -26,7 +26,7 @@ export class MyApp {
   pages: Array<{title: string, component: any}>;
 
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
+  constructor(public odoo: OdooToolsProvider, public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
     this.initializeApp();
 
     // used for an example of ngFor and navigation
@@ -35,6 +35,15 @@ export class MyApp {
       { title: 'Albaranes', component: PickingPage },
       { title: 'List', component: ListPage }
     ];
+    this.odoo.preload('nav', 'assets/sounds/nav.mp3')
+    this.odoo.preload('barcode_ok', 'assets/sounds/barcode_ok.mp3')
+    this.odoo.preload('barcode_error', 'assets/sounds/barcode_error.mp3')
+    this.odoo.preload('ok', 'assets/sounds/ok.mp3')
+    this.odoo.preload('error', 'assets/sounds/error.mp3')
+    this.odoo.preload('fatal_error', 'assets/sounds/error_1.mp3')
+    this.odoo.preload('press', 'assets/sounds/key_press.mp3')
+    this.odoo.preload('beep', 'assets/sounds/beep.mp3')
+
 
   }
 

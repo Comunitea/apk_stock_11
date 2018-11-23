@@ -52,7 +52,6 @@
 }
 
 ion-badge {
-    
     padding: 4px;
     margin: 4px;
 }
@@ -78,10 +77,7 @@ ion-badge {
     width: 33%;
     
 }
-.w33{
-    width: 33%;
-    
-}
+
 .w25{
     width: 25%;
 }
@@ -91,76 +87,50 @@ ion-badge {
 .item-block{
     min-height: 1.5rem;
 }
-.item-md ion-avatar[item-left],
-.item-md ion-thumbnail[item-left],
-.item-md ion-avatar[item-start],
-.item-md ion-thumbnail[item-start] {
-  margin: 2px 4px 2px 0;
-}
-
-.item-md ion-avatar[item-right],
-.item-md ion-thumbnail[item-right],
-.item-md ion-avatar[item-end],
-.item-md ion-thumbnail[item-end] {
-  margin: 2px;
-}
-.item-md {
-    padding-left: 4px;
-}
-.label-md{
-    padding: 4px;
-    margin: 4px;
-}
-.badge-md {
-    padding: 4px;
-    
-}
-.action-sheets-move-page {
-  .alert_state_error {
-    
-    color: color($colors, error);
-    
+.centrado{
+    margin-left: auto;
+    margin-right: auto;
+    display: block !important;
   }
+
+.action-sheets-move-page {
+  .alert_state_error {    
+    color: color($colors, error);
+    }
   .alert_state_done {
-    
     color: color($colors, done);
-    
   }
   .alert_state_back {
-    
-    color: color($colors, warning);
-    
+    color: color($colors, odoo);
   }
-  .ion-icon{
-      .package {
-          name: 'cube';
-          color:  color($colors, package);
-      }
-      .lot {
-          name: 'barcode';
-          color:  color($colors, lot);
-      }
-      .product {
-        name: 'ribbon';
-        color:  color($colors, product);
+  .alert_state {
+    color: color($colors, odoo);
+  }
+}
+.ion-icon{
+    
+    .package {
+    color:  color($colors, package);
     }
-      .location {
-        name: 'filling';
-        color:  color($colors, location);
-      }
-      .verform {
-        name: 'eye';
-        color:  color($colors, odoo);
-
-      }
+    .lot {    
+    color:  color($colors, lot);
+    }
+    .product {
+    color:  color($colors, product);
+    }
+    .location {
+    color:  color($colors, location);
+    }
+    .verform {
+    color:  color($colors, odoo);
+    }
   }
-  move-line{
-      .small {
-          margin: 0px;
-          border: 1px;
-          padding: 2px;
-      }
-  }
+move-line{
+    .small {
+        margin: 0px;
+        border: 1px;
+        padding: 2px;
+    }
+}
 
   
-}

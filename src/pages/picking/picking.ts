@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { HostListener } from '@angular/core';
+
 /**
  * Generated class for the PickingPage page.
  *
@@ -17,7 +18,7 @@ import { PickingFormPage } from '../picking-form/picking-form';
 import { Storage } from '@ionic/storage';
 
 import { OdooStockPickingProvider } from '../../providers/odoo-stock-picking/odoo-stock-picking';
-
+import { SpeechRecognition } from '@ionic-native/speech-recognition';
 
 
 @IonicPage()
@@ -54,7 +55,12 @@ export class PickingPage {
   active_conexion
   need_refresh: Boolean = false
   icon_state: string
-
+  read_from: 0
+  voice: boolean 
+  matches: String[];
+  isRecording = false;
+  p_index=[]
+  escuchando:boolean
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     let code 
@@ -66,7 +72,7 @@ export class PickingPage {
   
     }
 
-  constructor(public StockPicking: OdooStockPickingProvider, public odoo: OdooConnectorProvider, public navCtrl: NavController, private formBuilder: FormBuilder, public navParams: NavParams, public odootools: OdooToolsProvider, public scanner: OdooScannerProvider, public storage: Storage) {
+  constructor(private cd:ChangeDetectorRef, public sp: SpeechRecognition, public StockPicking: OdooStockPickingProvider, public odoo: OdooConnectorProvider, public navCtrl: NavController, private formBuilder: FormBuilder, public navParams: NavParams, public odootools: OdooToolsProvider, public scanner: OdooScannerProvider, public storage: Storage) {
     
     this.ScanReader = this.formBuilder.group({scan: ['']});
     this.scanner.on()
@@ -76,7 +82,7 @@ export class PickingPage {
     this.stock_picking_filter =[]
     this.type_header=false
     this.icon_state = 'mood'
-    
+    this.escuchando=false
 
     this.storage.get('odoo_conexion').then((val) => {
       if (val) {
@@ -98,24 +104,101 @@ export class PickingPage {
       }
       
       })
+      this.sp.isRecognitionAvailable().then((available: boolean) => {
+        this.voice=available;
+      }).catch((reason) => {this.voice= false})
     this.cargar=false
     
   }
+
+  change_escuchando(){
+    this.escuchando=!this.escuchando
+    if (this.escuchando){
+      this.startListening()
+    }
+  }
+  lee_form (from=0){
+    let msg='Lista de albaranes'
+    for (let l in this.currentPicks){
+      if (parseInt(l)>=from){
+      msg = msg + '  ' + l + ' ' + this.currentPicks[l]['name']}
+    }
+    this.odootools.lee(msg)
+  }
+  is_lee_in_matches(str_array, search_str){
+    let index=-1
+    this.read_from = 0
+    for (let l in str_array){
+      index = str_array[l].search(search_str)
+      if (index>=0)
+        { this.read_from = str_array[l].replace(search_str, '').trim()
+          return true}
+    }
+  }
+
+  recon_voice(matches){
+    this.escuchando=false
+    this.matches = matches
+    this.cd.detectChanges();
+    if (matches.indexOf('atras')>=0){
+      //this.navCtrl.setRoot(LoginPage)
+      this.odootools.presentToast("Atras ...")
+    }
+    else if (matches.indexOf('validar')>=0){
+      //validar albarán
+      this.odootools.presentToast("validar ...")
+    }
+    else if (matches.indexOf('lee')>=0){
+      this.lee_form()
+    }
+    else if (this.is_lee_in_matches(matches, 'lee')){
+      this.lee_form(this.read_from)
+    }
+    else {
+      for (let l in matches){
+        if (this.p_index.indexOf(matches[l])>=0){
+          this.odootools.presentToast("Buscando..." + l)
+          this.open_pick(this.currentPicks[l]['id'])
+        }
+        else{
+          this.odootools.presentToast("No he encontrado nada para" + matches[l])
+        }}
+      }
+  }
+
+  startListening() {
+    if (!this.voice){
+      return
+    }
+    this.odootools.presentToast("Escuchando ...")
+    let options = {
+      language: 'es-ES',
+      matches: 3,
+      showPopup: false,
+      showPartial: false
+    }
+    this.escuchando=true
+    this.sp.startListening(options).subscribe(matches => {
+     this.recon_voice(matches)})
+
+    this.isRecording = true;
+  }
+
   find_name(val, element){
     return element['name'].search(val)>0
   }
   getItems(ev) {
+    let val = ev && ev.target.value;
     if (!ev){
       this.currentPicks = this.stock_picking_ids;
-      return
     }
-    let val = ev.target.value;
-    if (!val || !val.trim()) {
-      this.currentPicks = this.stock_picking_ids;
-      return;
-
+    else if (!val || !val.trim()) {
+      this.currentPicks = this.stock_picking_ids.filter(element => element['name'].search(val)>0)
     }
-    this.currentPicks = this.stock_picking_ids.filter(element => element['name'].search(val)>0)
+    this.p_index = []
+    for (var i = 0; i < this.currentPicks.length; i++){
+      this.p_index.push(i)
+    }
   }
 
   ionViewDidLoad() {
@@ -127,14 +210,22 @@ export class PickingPage {
   }
 
   scan_read(val){
-    this.odootools.presentToast('Picking tree' + val)    
+    
   }
 
   submitScan(value=false){
     let scan
-    scan = value && this.ScanReader.value['scan']
-    this.odootools.presentToast(scan)
+    if (!this.ScanReader.value['scan']){
+      this.startListening()
     }
+    scan = value && this.ScanReader.value['scan']
+    for (let l in this.currentPicks){
+      if (this.currentPicks[l]['name'] == scan){
+        this.open_pick(this.currentPicks[l]['id'])
+      }}
+    this.recon_voice([this.ScanReader.value['scan']])  
+    
+  }
   
   filter_picking_state(picking, state) {
     return picking['state'] == state
@@ -243,7 +334,7 @@ export class PickingPage {
         this.storage.set('stock_picking_ids', values);
         if (this.need_refresh){
           this.picking_states = values.map((picking) => picking['state']).filter(this.odootools.onlyUnique )}
-        this.odootools.presentToast('Se han recuperado ' + values.length + ' albaranes');
+        //this.odootools.presentToast('Se han recuperado ' + values.length + ' albaranes');
         }
       else{
         this.odootools.presentToast('Aviso!: No se ha recuperado ningún albarán');
@@ -257,9 +348,12 @@ export class PickingPage {
     console.log(this.stock_picking_ids)
   }
   open_pick(picking_id = false){
-    if (!picking_id){return}
-
+    if (!picking_id){
+      this.odootools.play('error')
+      return
+    }
     let val = {'picking_id': picking_id}
+    this.odootools.play('nav')
     this.navCtrl.setRoot(PickingFormPage, val)
 
 

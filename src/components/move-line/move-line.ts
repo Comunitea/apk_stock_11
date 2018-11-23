@@ -15,7 +15,8 @@ export interface Picking{
   user_id;
   state: string;
   name: string;
-  scheduled_date: string;
+  scheduled_date: string
+  filter: string;
 }
 
 export interface Move {
@@ -66,7 +67,7 @@ export class MoveLineComponent {
   }
   open_move(move_id){
 
-    let val =  {move_id: move_id}
+    let val =  {'move_id': move_id, 'object': this.move['object'], 'picking': this.picking}
     this.navCtrl.setRoot(MoveFormPage, val)
   }
   open_package(package_id){
@@ -76,32 +77,35 @@ export class MoveLineComponent {
 
   }
   get_op_ready(){}
+  
   click(value){
     let c = this.move['checked']
     if (value=='product_id'){
-      c.product_id = true
+      this.open_move(this.move['id'])
+      //c.product_id = !c.product_id
     }
     else if (value=='package_id'){
-      c.product_id= true
-      c.location_id=true
-      c.lot_id = true
+      c.package_id = !c.package_id
+      if (c.package_id){c.product_id = c.package_id}
+      c.location_id= c.package_id
+      c.lot_id = c.package_id
     }
     else if (value=='lot_id'){
-      c.product_id= true
-      c.lot_id = true
+      c.lot_id = !c.lot_id
+      c.product_id= c.lot_id
     }
     else if (value=='location_id'){
-      c.location_id= true
+      c.location_id= !c.location_id
     }
     else if (value=='location_dest_id'){
-      c.location_dest_id= true
+      c.location_dest_id= !c.location_dest_id
     }
     else if (value=='result_package_id'){
-      c.location_dest_id= true
-      c.result_package_id = true
+      c.result_package_id = !c.result_package_id
+      c.location_dest_id=  c.result_package_id
     }
     else if (value=='product_qty'){
-      c.package_qty = true
+      c.package_qty = !c.package_qty
     }
 
   }
@@ -181,5 +185,13 @@ export class MoveLineComponent {
   }
   convert_to_fix(qty){
     return (qty*1).toFixed(2)
+  }
+  set_as_pda_done(pda_done){
+    let vals={'pda_done': pda_done, 'qty_done': pda_done && this.move['qty_done'] || 0.00}
+    let res = this.odootools.validar_move(this.move.id, vals)
+
+
+
+
   }
 }

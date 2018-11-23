@@ -10,7 +10,7 @@ import {Storage} from '@ionic/storage';
 import {MoveFormPage} from '../../pages/move-form/move-form';
 import {PickingPage} from '../picking/picking';
 import * as OdooConexion from 'odoo-xmlrpc';
-
+import { OdooToolsProvider} from '../../providers/odoo-tools/odoo-tools'
 
 //@IonicPage()
 @Component({
@@ -49,7 +49,8 @@ export class LoginPage {
     logged: false,
     uid: 0
   };
-  constructor(public navCtrl: NavController, public storage: Storage, public navParams: NavParams, public alertCtrl: AlertController, public toast: ToastController) {
+
+  constructor(public navCtrl: NavController, public storage: Storage, public navParams: NavParams, public alertCtrl: AlertController, public toast: ToastController, public odootools: OdooToolsProvider) {
     
     this.login_server = false
     this.storage.get('odoo_conexion').then((val) => {
@@ -62,6 +63,7 @@ export class LoginPage {
       }
       this.cargar=false
       })
+      this.odootools.play('barcode_ok')
     }
 
   
@@ -81,6 +83,7 @@ export class LoginPage {
       odoo.connect(function(err, uid){
         
         if(err){
+          self.odootools.play('error')
           self.presentToast("Error al acceder a odoo")
           self.conexion.logged=false
           self.conexion.uid= 0 
@@ -93,6 +96,7 @@ export class LoginPage {
         }   
         self.storage.set('odoo_conexion', self.conexion).then((val)=>{
           if (val) {
+            self.odootools.play('beep')
             self.navCtrl.setRoot(PickingPage)
             //self.navCtrl.setRoot(MoveFormPage, {'move_id': 14220})   
           }
