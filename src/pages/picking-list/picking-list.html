@@ -1,0 +1,65 @@
+<!--
+  Generated template for the PickingListPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Albaranes</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="change_hide_scan_form()" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
+</ion-header>
+
+
+<ion-content padding>
+  <div >
+    <ion-segment *ngIf="picking_types">
+      <ion-segment-button value="All" (click)="filter_picks('type', 0)"><ion-icon name="apps"></ion-icon></ion-segment-button>
+      <ion-segment-button *ngFor="let pick_type of picking_types" value="{{ pick_type && pick_type['name']}}" (click)="filter_picks('type', pick_type.id)">{{pick_type.short_name || pick_type.name }}</ion-segment-button>
+    </ion-segment>
+  </div>
+
+   <div>
+      <ion-item-sliding *ngFor="let stock_picking of current_picks_ids; let i = index">
+        <ion-item text-end >
+          <ion-icon name="calendar" item-start ></ion-icon>
+          <ion-label color="odoo" (click)= "open_pick(stock_picking['index'])">[{{stock_picking['index']}}] {{ stock_picking && stock_picking['name']}} </ion-label>
+        </ion-item>
+        <ion-item-options side="left">
+          <button ion-button color="odoo">
+          <ion-icon name="refresh"></ion-icon>Validar</button>
+        </ion-item-options>
+      </ion-item-sliding>
+    </div>
+</ion-content>
+<ion-footer>
+
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="scanner.hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+    
+      <button ion-button icon-only item-end clear (click)="submitScan()">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>
+
