@@ -2,10 +2,9 @@ import {NavController, NavParams, AlertController} from 'ionic-angular';
 import {Component} from '@angular/core';    
 
 import {Storage} from '@ionic/storage';
-import {ListPage} from '../../pages/list/list';
+
 import { OdooProvider } from '../../providers/odoo/odoo';
 import { PickingListPage } from '../picking-list/picking-list';
-
 
 
 @Component({
@@ -19,9 +18,9 @@ export class HomePage {
     CONEXION = {
         url: 'http://localhost',
         port: '8069',
-        db: 'test_o11',
-        username: 'admin',
-        password: 'admin',
+        db: 'anzamar',
+        username: 'comunitea',
+        password: 'comunita',
         uid : 0,
         context: {},
         user: {}

@@ -1,5 +1,5 @@
 import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
 import { StockProvider } from '../../providers/stock/stock'
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
@@ -7,6 +7,8 @@ import { Storage } from '@ionic/storage';
 import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
 import { PickingListPage } from '../picking-list/picking-list';
+import { MoveFormPage } from '../move-form/move-form'
+import { MoveLineFormPage } from '../move-line-form/move-line-form'
 
 /**
  * Generated class for the PickingFormPage page.
@@ -31,7 +33,11 @@ export class PickingFormPage {
   hide_scan_form: boolean
   max_index: number
   move_model: string
-  ScanReader: FormGroup;
+  ScanReader: FormGroup
+  valores: any
+  todayDate: any
+  dateToday: any
+  picking_type: any
   
 
   @HostListener('document:keydown', ['$event'])
@@ -39,12 +45,12 @@ export class PickingFormPage {
     let code 
     code = this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
-      //console.log(val)
       this.scan_read(val)
+      this.changeDetectorRef.detectChanges()
     })
   
     }
-  constructor(public navCtrl: NavController, public navParams: NavParams, private sound: SoundsProvider, public formBuilder: FormBuilder, private stockInfo: StockProvider, public scanner: ScannerProvider) {
+  constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, private sound: SoundsProvider, public formBuilder: FormBuilder, private stockInfo: StockProvider, public scanner: ScannerProvider, public alertCtrl: AlertController) {
     this.ScanReader = this.formBuilder.group({scan: ['']});
     this.cargar=true
     this.scanner.on()
@@ -65,7 +71,7 @@ export class PickingFormPage {
   }
 
   scan_read(val){
-    //this.odootools.presentToast('Picking form ' + val)
+    //this.stockInfo.check_barcode_or_lot(val, this.stock_picking_id['id'])
   }
   
   submitScan(scan=false){
@@ -111,23 +117,32 @@ export class PickingFormPage {
   }
   get_picking_id(id){
     var domain = [['id', '=', id]]
-    console.log(domain)
-    this.stockInfo.get_stock_picking(domain, 'form').then((picks:Array<{}>)=> {
+    this.stockInfo.get_stock_picking(domain, 'form').then((picks:Array<{}>)=> {  
+
+      this.stockInfo.get_current_picking_type(picks[0]['picking_type_id'][0]).then((lines:Array<{}>) => {
+        picks[0]['picking_type_id'].push(lines[0]['code'])
+      })
+
       this.stock_picking_id = picks[0]
-      
+      this.changeDetectorRef.detectChanges()
+     
       if (['done', 'assigned', 'partially_available'].indexOf(this.stock_picking_id['state'])!=-1){
         this.move_model = this.stock_picking_id['state'] == 'done' && 'stock.move' || 'stock.move.line'
         var domain_move = [['picking_id', '=', id]]
         this.stockInfo.get_stock_move(domain_move, 'tree', this.move_model).then((moves:Array<{}>)=> {
           
           this.stock_picking_id['moves'] = moves
+          this.stock_picking_id['moves_lines_ids'] = this.stock_picking_id['moves']
           this.check_state()
           this.cargar=false
+          this.changeDetectorRef.detectChanges()
         })
         .catch((mierror) => {
           this.stock_picking_id['moves'] = []
+          this.stock_picking_id['moves_lines_ids'] = this.stock_picking_id['moves']
           this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar los movimientos del albarán')
           this.cargar=false
+          this.changeDetectorRef.detectChanges()
         })
       }
     })
@@ -138,8 +153,47 @@ export class PickingFormPage {
     })
     return
   }
-  open_form (model, id){
 
+  open_form_move (model, id){
+    let val = {'model': model, 'id': id, 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids}
+
+    this.navCtrl.setRoot(MoveFormPage, val)
   }
 
+  open_form_move_line (model, id, index){
+    let val = {'model': model, 'id': id, 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': index, 'lines_ids': this.stock_picking_id['moves'], 'picking_type': this.stock_picking_id['picking_type_id'][2]}
+
+    this.navCtrl.setRoot(MoveLineFormPage, val)
+  }
+
+  errorAlert(model, move_id, data) {
+    let subtitulo = 'No se ha podido guardar en el id ' + move_id + ' del modelo ' + model + 'el valor: ' + data
+    const alertError = this.alertCtrl.create({
+      title: 'Error',
+      subTitle: subtitulo,
+      buttons: ['OK']
+    });
+    alertError.present();
+  }
+
+  validate_pick(stock_picking_id){
+    let resultado = this.stockInfo.validate_picking(stock_picking_id)
+    if (resultado['err'] == false) {
+      this.stockInfo.presentAlert('Error de validación', 'No se ha podido validar el albarán, revisa sus datos.')
+    } else {
+      let alert = this.alertCtrl.create({
+        title: 'Validación',
+        message: 'El albarán ha sido validado.',
+        buttons: [
+          {
+            text: 'OK',
+            handler: () => {
+              this.navCtrl.setRoot(PickingListPage)
+            }
+          }
+        ]
+      })
+      alert.present()
+    }
+  }
 }

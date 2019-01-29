@@ -1,0 +1,130 @@
+<!--
+  Generated template for the LotFormPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+    <ion-navbar *ngIf="lot_id">
+      <button ion-button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+      </button>
+      <ion-title>Lote {{ lot_id['name'] }}</ion-title>
+    <ion-buttons end>
+    <button ion-button icon-only item-end (click)="lee_form()">
+      <ion-icon name="megaphone"></ion-icon>
+    </button>
+    <button ion-button icon-only item-end (click)="change_escuchando()">
+      <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+      <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+    </button>
+      
+      <button ion-button icon-only item-end (click)="hide_scan_form = !hide_scan_form" color="primary">
+      <ion-icon name="barcode"></ion-icon>
+    </button>
+    </ion-buttons>
+  </ion-navbar>
+     
+</ion-header>
+  
+  <ion-content padding class="lot-form">
+
+    <div>
+      <ion-item no-lines>
+          <button padding ion-button item-start (click)="open_pick(-1)">
+            Anterior
+          </button>
+  
+          <button padding ion-button item-end (click)="open_pick(1)">
+            Siguiente
+          </button>
+        </ion-item>
+    </div>
+
+    <div *ngIf="lot_id" >
+      <ion-grid >
+        <ion-row>
+          <ion-col *ngIf="lot_id['ref']">
+            <strong>Ref:</strong> {{ lot_id['ref'] }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col *ngIf="lot_id['product_id']">
+            <strong>Producto:</strong> {{ lot_id['product_id'][1] }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col *ngIf="lot_id['create_date']">
+              <strong>Fecha de creación:</strong> {{ lot_id['create_date'] }}
+            </ion-col>
+          </ion-row>
+      </ion-grid>
+    </div>
+
+    
+
+    <ion-card *ngIf="lot_lines">
+        <ion-card-header>
+          <strong>Movimientos del lote</strong>
+        </ion-card-header>
+      
+        
+        <ion-card-content>
+          <div *ngFor="let lot_line of lot_lines">
+            <div>
+              <ion-list>
+                  <button ion-item>
+                    <strong>Referencia: </strong>{{lot_line['reference']}} 
+                  </button>    
+                </ion-list>
+                <ion-list>
+                  <button ion-item>
+                    <strong>Fecha: </strong>{{lot_line['date']}} 
+                  </button>    
+                </ion-list>
+                <ion-list>
+                  <button ion-item>
+                    <strong>Origen: </strong>{{lot_line['location_id']['1']}} 
+                  </button>    
+                </ion-list>
+                <ion-list>
+                  <button ion-item>
+                    <strong>Destino: </strong>{{lot_line['location_dest_id']['1']}} 
+                  </button>    
+                </ion-list>
+                <ion-list *ngIf="lot_line['ordered_qty']">
+                  <button ion-item>
+                    <strong>Cantidad pedida: </strong>{{lot_line['ordered_qty']}} 
+                  </button>    
+                </ion-list>
+                <ion-list>
+                    <button ion-item>
+                      <strong>Cantidad enviada: </strong>{{lot_line['qty_done']}} 
+                    </button>    
+                  </ion-list>
+                <ion-list>
+                  <button ion-item>
+                    <strong>Estado: </strong>{{lot_line['state']}} 
+                  </button>    
+                </ion-list>
+                <hr/>
+            </div>
+          </div>
+        </ion-card-content>        
+      </ion-card>
+  
+  </ion-content>
+  
+  <ion-footer>
+    <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+      <ion-item>
+        <ion-label color="primary" item-start>Scan: </ion-label>
+        <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+        <button ion-button icon-only item-end clear (click)="submitScan()">
+          <ion-icon name="barcode"></ion-icon>
+        </button>
+      </ion-item>   
+    </form>
+  </ion-footer>
+  
+  

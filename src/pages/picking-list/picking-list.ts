@@ -72,19 +72,20 @@ export class PickingListPage {
   scan_read(val){
     
   }
+  
   open_pick(picking_id: number = 0){
     
     let val = {'index': picking_id, 'picking_ids': this.current_picks_ids}
     this.sound.play('nav')
     this.navCtrl.setRoot(PickingFormPage, val)
-
-
   }
+
   get_picking_domain(){
     var domain = []
     if (this.picking_type_filter != 0){
       domain = [['picking_type_id', '=', this.picking_type_filter]]
     }
+    domain.push(['state','not in', ['cancel','done']])
    return domain
   }
   submitScan(value=false){
@@ -101,7 +102,9 @@ export class PickingListPage {
     
   }
   initPickingTypes(){
-    this.stockInfo.get_picking_types().then((picks)=> {
+    /* let domain = [['code', '=', 'outgoing']] */
+    let domain = []
+    this.stockInfo.get_picking_types(domain).then((picks)=> {
       this.picking_types = []
       for (var type in picks){
         picks[type]['index'] = type

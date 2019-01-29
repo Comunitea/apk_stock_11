@@ -92,8 +92,107 @@ export class OdooProvider {
                             odoo.call(model, method, values).then((res) => {
                                 resolve(res);
                             })
-                            .catch( () => {
+                            .catch( (error) => {
                                 var err = {'title': 'Error!', 'msg': 'Fallo al llamar al método ' + method + 'del modelo app.regustry'}
+                                reject(err);
+                            });
+                    })
+                    .catch( () => {
+                        var err = {'title': 'Error!', 'msg': 'No se pudo conectar con Odoo'}
+                        reject(err);
+                    });
+                }
+            });
+        });
+        return promise
+    }
+
+    update_lines(model, method, values, domain) {
+        var domain = domain
+        var method = method
+        var values = values
+        var self = this
+        var promise = new Promise( (resolve, reject) => {
+            self.storage.get('CONEXION').then((con_data) => {
+                var odoo = new OdooApi(con_data.url, con_data.db);
+                odoo.context = self.context
+                if (con_data == null) {
+                    var err = {'title': 'Error!', 'msg': 'No hay datos para establecer la conexión'}
+                    reject(err);
+                }
+            		else {
+                    odoo.login(con_data.username, con_data.password).then((uid) => {
+                            odoo.write(model, domain, values).then((res) => {
+                                resolve(res);
+                            })
+                            .catch( () => {
+                                var err = {'title': 'Error!', 'msg': 'Fallo al llamar al método ' + method + ' del modelo app.registry'}
+                                reject(err);
+                            });
+                    })
+                    .catch( () => {
+                        var err = {'title': 'Error!', 'msg': 'No se pudo conectar con Odoo'}
+                        reject(err);
+                    });
+                }
+            });
+        });
+        return promise
+    }
+
+    quants_pda_check(model, method, values) {
+        var method = method
+        var values = values
+        var self = this
+        var promise = new Promise( (resolve, reject) => {
+            self.storage.get('CONEXION').then((con_data) => {
+                var odoo = new OdooApi(con_data.url, con_data.db);
+                odoo.context = self.context
+                if (con_data == null) {
+                    var err = {'title': 'Error!', 'msg': 'No hay datos para establecer la conexión'}
+                    reject(err);
+                }
+            		else {
+                    odoo.login(con_data.username, con_data.password).then((uid) => {
+                            odoo.call(model, method, values).then((res) => {
+                                resolve(res);
+                            })
+                            .catch( (error) => {
+                                console.log(error)
+                                var err = {'title': 'Error!', 'msg': 'Fallo al llamar al método ' + method + 'del modelo app.regustry'}
+                                reject(err);
+                            });
+                    })
+                    .catch( () => {
+                        var err = {'title': 'Error!', 'msg': 'No se pudo conectar con Odoo'}
+                        reject(err);
+                    });
+                }
+            });
+        });
+        return promise
+    }
+
+    new_package(model, values) {
+        var values = values
+        var self = this
+        var promise = new Promise( (resolve, reject) => {
+            self.storage.get('CONEXION').then((con_data) => {
+                var odoo = new OdooApi(con_data.url, con_data.db);
+                odoo.context = self.context
+                if (con_data == null) {
+                    var err = {'title': 'Error!', 'msg': 'No hay datos para establecer la conexión'}
+                    reject(err);
+                }
+            		else {
+                    odoo.login(con_data.username, con_data.password).then((uid) => {
+                            odoo.create(model, values).then((res) => {
+                                console.log(res)
+                                resolve(res);
+                            })
+                            .catch( (error) => {
+                                console.log(error)
+                                var err = {'title': 'Error!', 'msg': 'Fallo al llamar al método'}
                                 reject(err);
                             });
                     })

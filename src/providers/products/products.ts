@@ -1,0 +1,171 @@
+import { Injectable } from '@angular/core';
+import { OdooProvider } from '../odoo/odoo';
+import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { Storage } from '@ionic/storage';
+
+/*
+  Generated class for the StockProvider provider.
+
+  See https://angular.io/guide/dependency-injection for more info on providers
+  and Angular DI.
+*/
+@Injectable()
+export class ProductProvider {
+
+  STOCK_FIELDS = {
+    'product.template': {
+      'form': ['id', 'name', 'description', 'type', 'categ_id', 'list_price', 'weight', 'default_code', 'image_medium', 'tracking'],
+      'tree': ['id', 'name', 'description', 'type', 'categ_id', 'list_price', 'weight', 'default_code', 'image_medium', 'tracking']
+    },
+    'stock.move': {
+      'form': ['id', 'reference', 'product_id', 'picking_id'],
+      'tree': ['id', 'reference', 'product_id', 'picking_id']
+    },
+    'stock.production.lot': {
+      'form': ['id', 'name', 'ref', 'product_id', 'create_date'],
+      'tree': ['id', 'name', 'product_id']      
+    },
+    'product.product': {
+      'form': ['id', 'product_tmpl_id'],
+      'tree': ['id', 'product_tmpl_id']
+    },
+    'stock.move.line': {
+      'form': ['id', 'picking_id', 'ordered_qty', 'qty_done', 'lot_id', 'date', 'location_id', 'location_dest_id', 'state', 'reference'],
+      'tree': ['id', 'picking_id', 'ordered_qty', 'qty_done', 'lot_id', 'date', 'location_id', 'location_dest_id', 'state', 'reference']
+    }
+  }                             
+
+  constructor(private odooCon: OdooProvider, public alertCtrl: AlertController, public storage: Storage)  {
+    console.log('Hello ProductProvider Provider');
+    
+  }
+
+  get_product_data(domain, type='tree', offset, limit){
+    var limit = limit
+    var offset = offset
+    
+    if(offset < 0) {
+      offset = 0
+    }
+
+    offset = offset*50
+    
+    var self = this
+    var model = 'product.template'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, offset, limit).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }  
+
+  get_last_movements(domain, type='form'){
+    
+    var self = this
+    var model = 'stock.move'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 5, 'id DESC').then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  get_product_real_id(domain, type='form'){
+    
+    var self = this
+    var model = 'product.product'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 1).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  get_last_lots(domain, type='tree'){
+    
+    var self = this
+    var model = 'stock.production.lot'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 5, 'id DESC').then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  get_lot_info(domain, type='form'){
+    
+    var self = this
+    var model = 'stock.production.lot'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0,).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  get_lot_lines(domain, type='form'){
+    
+    var self = this
+    var model = 'stock.move.line'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0, 'date DESC').then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+    
+
+  
+  presentAlert(titulo, texto) {
+    const alert = this.alertCtrl.create({
+        title: titulo,
+        subTitle: texto,
+        buttons: ['Ok'],
+    });
+    alert.present();
+  }
+
+  
+}

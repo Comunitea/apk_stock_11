@@ -1,9 +1,18 @@
-function OdooApi (host, db, conn_data={}) {
-    
+function OdooApi (host, db, conn_data) {
+
+if(!conn_data){
+    conn_data = {}
+    conn_data['uid'] = false
+    conn_data['username'] = false
+    conn_data['password'] = false
+    conn_data['context'] = {}
+    conn_data['timeout'] = 10000
+}
+
 if (!host.match('\/$')) {
     host = host + '/';
 }
-        
+
 this.odoo_host = host;
 this.odoo_db = db;
 this.timeout = 10000
@@ -20,8 +29,8 @@ else {
     this.odoo_user = false;
     this.odoo_password = false;
     this.context = {'lang': 'es_ES'} //odoo_api,
-    
-}    
+
+}
 
 
 this.login = function(user, password) {

@@ -45,7 +45,7 @@
   <div *ngIf="view_form && !cargar && stock_picking_id">
     <div>
       <ion-item no-lines *ngIf="(((stock_picking_id['state'] != 'done' && stock_picking_id['move_done_count'] > 0)) || stock_picking_id['state'] == 'confirmed')" >
-        <button *ngIf="stock_picking_id['state'] != 'done' && stock_picking_id['move_done_count'] > 0.00" color='odoo' padding ion-button item-end (click)="validate_pick()">
+        <button *ngIf="stock_picking_id['state'] != 'done' && stock_picking_id['move_done_count'] > 0.00" color='odoo' padding ion-button item-end (click)="validate_pick(stock_picking_id)">
           Validar
         </button>
         <button  *ngIf="stock_picking_id['state'] == 'confirmed'" padding ion-button item-end (click)="reserve_pick()">
@@ -99,12 +99,12 @@
 
 <div *ngIf="!cargar && view_tree && stock_picking_id && stock_picking_id['move_count']">
   <ion-grid *ngFor="let move of stock_picking_id['moves']; let i = index">
-    <ion-row text-end (click)="open_form (move['model'], move['id'])">
+    <ion-row text-end (click)="open_form_move_line (move['model'], move['id'], i)">
       <ion-col color='odoo' text-start>
         {{ move['package_id'] && move['package_id'][1] || move['product_id'] && move['product_id'][1]}}
       </ion-col>
       <ion-col text-end *ngIf="!move['move_line_ids']" >
-        <ion-badge *ngIf="move['state'] != 'done'"  color="odoo">
+        <ion-badge *ngIf="move['state'] != 'done' && stock_picking_id['picking_type_id'][2]"  color="odoo">
           {{ move['qty_done']}} de {{ move['product_uom_qty']}} {{move['product_uom'] && move['product_uom'][1]}}
         </ion-badge>
         <ion-badge *ngIf="move['state'] == 'done'" color="state_done">
@@ -113,13 +113,13 @@
       </ion-col>
       
     </ion-row>
-      <!--ion-row>
+      <!-- <ion-row>
         <ion-col>
             Info: {{move_model }} {{move['state']}}
         </ion-col>
-      </ion-row-->
+      </ion-row> -->
 
-      <ion-row *ngFor="let move_line of move['move_line_ids']" (click)="open_form (move_line['model'], move_line['id'])">
+      <ion-row *ngFor="let move_line of move['move_line_ids']" (click)="open_form_move (move_line['model'], move_line['id'])">
           <ion-col *ngIf="move_line['lot_id']">
             LOT:  {{move_line['lot_id'][1]}} 
           </ion-col>

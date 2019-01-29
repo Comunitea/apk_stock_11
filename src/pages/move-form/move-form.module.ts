@@ -3,9 +3,6 @@ import { IonicPageModule } from 'ionic-angular';
 import { MoveFormPage } from './move-form';
 
 @NgModule({
-  declarations: [
-    MoveFormPage,
-  ],
   imports: [
     IonicPageModule.forChild(MoveFormPage),
   ],

@@ -2,11 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-
-import { HomePage } from '../pages/home/home';
-import { ListPage } from '../pages/list/list';
+import { HomePage } from '../pages/home/home'
 import { PickingListPage } from '../pages/picking-list/picking-list';
 import { SoundsProvider } from '../providers/sounds/sounds'
+import { ProductListPage } from '../pages/product-list/product-list'
+
 @Component({
   templateUrl: 'app.html'
 })
@@ -23,8 +23,8 @@ export class MyApp {
     // used for an example of ngFor and navigation
     this.pages = [
       { title: 'Home', component: HomePage },
-      { title: 'List', component: ListPage },
       { title: 'Albaranes', component: PickingListPage },
+      { title: 'Productos', component: ProductListPage }
     ];
     this.sound.preload('nav', 'assets/sounds/nav.mp3')
     this.sound.preload('barcode_ok', 'assets/sounds/barcode_ok.mp3')

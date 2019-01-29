@@ -38,7 +38,7 @@ export class ScannerProvider {
     }
 
     key_press(event){
-        let st = ("Me llega " + event.which + '[' + event.key + ' ]' + " y tengo " + this.code)
+        let st = ("Me llega " + event.which + '[' + event.keyCode + ' ]' + " y tengo " + this.code)
         //this.odootools.presentToast(st)
         
         //this.odootools.presentToast(e)
@@ -57,12 +57,12 @@ export class ScannerProvider {
             clearTimeout(this.timeout);
             
             if (event.which > 111 && event.which < 121 ) {
-                this.code = event.key
+                this.code = String.fromCharCode(event.keyCode)
                 this.is_order = true
             }
-            else if (event.which >= 48 && event.which < 110) {
+            else if (event.which >= 48 && event.which < 110 || event.which == 190) {
                 this.is_order = false
-                this.code += event.key;
+                this.code += String.fromCharCode(event.keyCode);
             }
             
             

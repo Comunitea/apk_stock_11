@@ -5,14 +5,105 @@
   Ionic pages and navigation.
 -->
 <ion-header>
-
   <ion-navbar>
-    <ion-title>move-line-form</ion-title>
-  </ion-navbar>
-
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{move_data && move_data['display_name'] || 'Líneas' }}</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="toggle_scan_form()" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
 </ion-header>
 
 
 <ion-content padding>
+  <div>
+    <ion-item no-lines>
+      <button ion-button item-start (click)="open_line(-1)">
+        <<
+      </button>
+      <button ion-button item-start (click)="backToPickingForm(true, 0)">
+          Volver
+      </button>
+      <button ion-button item-end (click)="open_line(1)">
+        >>
+      </button>
+    </ion-item>
+  </div>
+
+  <div *ngIf="move_data">
+    <ion-card>
+      <ion-card-header>
+        Datos
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list *ngIf="3 > step">
+          <span *ngIf="move_data['package_id']" [ngClass]="{'red-icon': pkg_error, 'green-icon': package_origin_confirm}">
+              <strong>Paquete:</strong> {{ move_data['package_id'][1] }}<br/>
+            </span>
+          <span *ngIf="move_data['location_id']" [ngClass]="{'red-icon': location_error, 'green-icon': original_location_barcode, 'orange-icon': new_origin_location_id}">
+            <strong>Origen:</strong> {{ move_data['location_id'][1] }}<br/>
+          </span>
+          <span *ngIf="move_data['lot_id'] || move_data['lot_name']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <strong>Lote:</strong> {{ move_data['lot_id'][1] || move_data['lot_name'] }}<br/>
+          </span>
+          <span *ngIf="move_data['product_id']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <strong>Producto:</strong> {{ move_data['product_id'][2] }}<br/>
+          </span>
+          <span *ngIf="move_data['product_qty']" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
+            <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
+          </span>
+        </ion-list>
+        <ion-list *ngIf="step == 3 || step == 4">
+            <span *ngIf="move_data['location_dest_id']" [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_barcode, 'orange-icon': change_location}">
+              <strong>Destino:</strong> {{ move_data['location_dest_id'][1] }}<br/>
+            </span>
+            <span *ngIf="move_data['result_package_id']">
+              <strong>Paquete Destino:</strong> {{ move_data['result_package_id'][1] }}<br/>
+            </span>
+            <ion-item class="package-checker" *ngIf="!move_data['result_package_id']">
+                <ion-label><strong>Nuevo paquete:</strong></ion-label> 
+                <ion-toggle item-end *ngIf="!new_package" checked="false" (ionChange)="save_new_package(true)"></ion-toggle>
+                <ion-toggle item-end *ngIf="new_package" checked="true" (ionChange)="save_new_package(false)"></ion-toggle>
+            </ion-item>
+            <ion-item *ngIf="step == 4">
+              <span>
+                Repita la última lectura para confirmar.
+              </span>
+            </ion-item>
+        </ion-list>
+        <ion-list *ngIf="step >= 5">
+          <span>
+            Actualizando datos.
+          </span>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
 
 </ion-content>
+
+
+<ion-footer>
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+      <button ion-button icon-only item-end clear (click)="submitScan(ScanReader.value)">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>
