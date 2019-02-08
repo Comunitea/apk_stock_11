@@ -6,6 +6,7 @@ import { HomePage } from '../pages/home/home'
 import { PickingListPage } from '../pages/picking-list/picking-list';
 import { SoundsProvider } from '../providers/sounds/sounds'
 import { ProductListPage } from '../pages/product-list/product-list'
+import { StockInventoryPage } from '../pages/stock-inventory/stock-inventory';
 
 @Component({
   templateUrl: 'app.html'
@@ -24,7 +25,8 @@ export class MyApp {
     this.pages = [
       { title: 'Home', component: HomePage },
       { title: 'Albaranes', component: PickingListPage },
-      { title: 'Productos', component: ProductListPage }
+      { title: 'Productos', component: ProductListPage },
+      { title: 'Ajustes de inventario', component: StockInventoryPage }
     ];
     this.sound.preload('nav', 'assets/sounds/nav.mp3')
     this.sound.preload('barcode_ok', 'assets/sounds/barcode_ok.mp3')

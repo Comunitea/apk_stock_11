@@ -1,0 +1,43 @@
+stock-inventory-create {
+    .red-icon {
+        color: red;
+    }
+
+    .orange-icon {
+        color: orange;
+    }
+
+    .green-icon {
+        color: green;
+    }
+
+    ion-item.text-wrap.item.item-block.item-md div.item-inner div.input-wrapper ion-label.label.label-md,
+    ion-item.item.item-block.item-md div.item-inner div.input-wrapper ion-label.label.label-md {
+        white-space: normal;
+    }
+
+    ion-card-header, .card-header-md {
+        padding: 8px;
+        font-size: 1.3rem;
+    }
+    
+    ion-card-content, .card-content-md {
+        padding: 8px 11px;
+        font-size: 1.2rem;
+    }
+
+    .button-pckg {
+        float: right;
+        max-height: 20px;
+        max-width: 20px;
+    }
+
+    ion-card-content ion-list ion-item.package-checker ion-label {
+        font-size: 1.2rem;
+    }
+
+    div.steps-container ion-list ion-item ion-label {
+        font-size: 1.3rem;
+        margin: 8px 8px 8px 0px;
+    }
+}

@@ -1,0 +1,212 @@
+<!--
+  Generated template for the PickingFormPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{ inventory_movement_id && inventory_movement_id['name'] || 'Ajuste de inventario' }}</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="hide_scan_form = !hide_scan_form" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
+</ion-header>
+
+<ion-content padding>
+  <div>
+    <ion-item no-lines>
+        <button *ngIf="type == 'list'" ion-button item-start (click)="open_pick(-1)">
+          <<
+        </button>
+        <button ion-button item-start (click)="backToInventoryPage()">
+          Volver
+        </button>
+        <button  *ngIf="type == 'list'" ion-button item-end (click)="open_pick(1)">
+          >>
+        </button>
+      </ion-item>
+  </div>
+
+  <div *ngIf="inventory_movement_id">
+    <div>
+      <ion-item no-lines *ngIf="inventory_movement_id['state'] != 'done' || inventory_movement_id['state'] != 'cancel'">
+        <button *ngIf="inventory_movement_id['state'] == 'confirm'" color='odoo' padding ion-button item-end (click)="inventory_validate(inventory_movement_id['id'])">
+          Validar
+        </button>
+        <button *ngIf="inventory_movement_id['state'] == 'draft'" color='odoo' padding ion-button item-end (click)="inventory_action_start(inventory_movement_id['id'])">
+          Iniciar
+        </button>
+        <button *ngIf="inventory_movement_id['state'] == 'confirm'" color='odoo' padding ion-button item-end (click)="inventory_action_cancel_draft(inventory_movement_id['id'])">
+          Cancelar
+        </button>
+      </ion-item>
+      <ion-item class="package-checker" *ngIf="!inventory_movement_id['package_id'] && !already_package && !new_package_done && inventory_movement_id['state'] != 'done' && inventory_movement_id['state'] != 'draft' && inventory_movement_id['lines_data']">
+        <ion-label><strong>Nuevo paquete:</strong></ion-label> 
+        <ion-toggle item-end *ngIf="!new_package" checked="false" (ionChange)="save_new_package(true)"></ion-toggle>
+        <ion-toggle item-end *ngIf="new_package" checked="true" (ionChange)="save_new_package(false)"></ion-toggle>
+      </ion-item>
+      <ion-item *ngIf="new_package_done">
+        n<ion-label><strong>Nuevo paquete:</strong></ion-label> {{ new_package_name }}
+      </ion-item>
+    </div>  
+    <div>
+      <ion-grid>
+        <ion-row>
+          <ion-col text-end>
+            Estado: {{ inventory_movement_id['state'] }}
+          </ion-col>
+        </ion-row>
+
+        <ion-row>         
+          <ion-col text-end>
+          <ion-icon name="calendar"></ion-icon>
+            {{ inventory_movement_id['date']}}
+          </ion-col>
+        </ion-row>
+        
+        <ion-row>
+          <ion-col text-end>
+          <ion-icon name="log-out"></ion-icon>
+            {{ inventory_movement_id['original_location_short_name']}}
+          </ion-col>
+        </ion-row>
+
+      </ion-grid>
+    </div>
+  </div>
+  <div *ngIf="inventory_movement_id['filter']" >
+    <ion-grid >
+      <ion-row>
+        <ion-col >
+        <ion-icon name="document"></ion-icon>
+          Inventario de:
+        </ion-col>
+        <ion-col text-end>
+          {{ inventory_movement_id['filter_expl'] }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <div *ngIf="inventory_movement_id" >
+    <ion-grid >
+      <ion-row *ngIf="inventory_movement_id['product_id']">
+        <ion-col>
+          Producto:
+        </ion-col>
+        <ion-col text-end>
+          {{ inventory_movement_id['original_product_short_name'] }}
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="inventory_movement_id['package_id']">
+        <ion-col>
+          Paquete:
+        </ion-col>
+        <ion-col text-end>
+          {{ inventory_movement_id['package_id'][1] }}
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="inventory_movement_id['lot_id']">
+        <ion-col>
+          Lote/Serie:
+        </ion-col>
+        <ion-col text-end>
+          {{ inventory_movement_id['lot_id'][1] }}
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="inventory_movement_id['category_id']">
+        <ion-col>
+          Categoría:
+        </ion-col>
+        <ion-col text-end>
+          {{ inventory_movement_id['category_id'][1] }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <div *ngIf="move_stock.length > 0">
+    <strong>Ajustes de inventario</strong>
+    <ion-card *ngFor="let move_stock_line of move_stock">
+        <ion-card-content>
+            <ion-row>
+              <ion-col text-start>
+                Producto:  {{ move_stock_line['product_id'][1] }}
+              </ion-col>
+              <ion-col text-end>
+                Estado:  {{ move_stock_line['state'] }}
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col text-start>
+                QTY:  
+              </ion-col>
+              <ion-col text-end>
+                  <ion-badge color="state_done">{{ move_stock_line['product_uom_qty'] }}</ion-badge>
+              </ion-col>
+            </ion-row>
+        </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="inventory_movement_id">
+    <strong>Detalles de inventario</strong> <ion-icon (click)="new_inventory_line(inventory_movement_id['id'])" *ngIf="inventory_movement_id['filter'] == 'partial' && inventory_movement_id['state'] == 'confirm'" item-start class="blue" name="add-circle" md="md-add-circle"></ion-icon>
+    <ion-card *ngFor="let inventory_line of inventory_movement_id['lines_data']; let i = index">
+        <ion-card-content (click)="inventory_movement_id['state'] === 'confirm' ? open_inventory_line(lines_index, i) : null">
+            <ion-row>
+              <strong>
+                {{ inventory_line['product_name'] }}
+              </strong>
+            </ion-row>
+            <ion-row>
+              <ion-col  *ngIf="inventory_line['prodlot_name']" text-start>
+                LOT:  {{ inventory_line['prodlot_name'] }}
+              </ion-col>
+              <ion-col *ngIf="inventory_line['package_id'][1]" text-end>
+                PAQ:  {{ inventory_line['package_id'][1] }}
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col text-start>
+                QTY (teo/real):  
+              </ion-col>
+              <ion-col text-end>
+                  <ion-badge color="odoo">{{ inventory_line['theoretical_qty'] }}</ion-badge>  / <ion-badge color="state_done">{{ inventory_line['product_qty'] }}</ion-badge>
+              </ion-col>
+            </ion-row>
+        </ion-card-content>
+    </ion-card>
+  </div> 
+
+</ion-content>
+
+<ion-footer>
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+      <button ion-button icon-only item-end clear (click)="submitScan()">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>
+

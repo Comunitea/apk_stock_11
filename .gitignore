@@ -6,6 +6,8 @@
 *.log
 *.tmp
 *.tmp.*
+*.keystore
+*.apk
 log.txt
 *.sublime-project
 *.sublime-workspace

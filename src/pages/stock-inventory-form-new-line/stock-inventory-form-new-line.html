@@ -1,0 +1,85 @@
+<!--
+  Generated template for the StockInventoryFormNewLinePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{ inventory_line_id && inventory_line_id['name'] || 'Línea de ajuste de inventario' }}</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="hide_scan_form = !hide_scan_form" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
+</ion-header>
+
+<ion-content padding>
+  <div>
+    <ion-item no-lines>
+        <button ion-button item-start (click)="move_to_inventory(inventory_id)">
+            Volver
+        </button>
+      </ion-item>
+  </div>
+
+  <div *ngIf="inventory_line">
+      <ion-card>
+        <ion-card-header>
+          Datos
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <span [ngClass]="{'red-icon': pkg_error || warehouse_error, 'green-icon': pkg_confirm || warehouse_confirm}">
+              <strong>Paquete:</strong> {{ pkg_name || 'Sin introducir' }}<br/>
+              <strong>Origen:</strong> {{ location_name || 'Sin introducir' }}<br/>
+            </span>
+            <span *ngIf="!pkg_quants" [ngClass]="{'red-icon': product_error, 'green-icon': product_confirm}">
+              <strong>Producto:</strong> {{ product_name || 'Sin introducir' }}<br/>
+            </span>
+            <span *ngIf="!pkg_quants" [ngClass]="{'red-icon': lot_error, 'green-icon': lot_confirm}">
+              <strong>Lote:</strong> {{ lot_name || 'Sin introducir' }}<br/>
+            </span>
+            <span *ngIf="!pkg_quants" [ngClass]="{'red-icon': qty_error, 'green-icon': qty_confirm}">
+              <strong>Cantidad (teo/real):</strong> {{ product_qty || 'Sin introducir' }} / {{ last_qty || 'Sin introducir' }}<br/>
+            </span>
+            <span *ngIf="unconfirmed_quants">
+              <ion-list>
+                <strong>Producto: </strong> {{ unconfirmed_quants[0]['product_name'] }} <br/>
+                <strong>Lote: </strong> {{ unconfirmed_quants[0]['lot_name'] }} <br/>
+                <strong [ngClass]="{'red-icon': qty_error}">Cantidad (teo/real):</strong> {{ unconfirmed_quants[0]['theo_qty'] || 'Sin introducir' }} / {{ unconfirmed_quants[0]['product_qty'] || 'Sin introducir' }}<br/>
+              </ion-list>
+            </span>
+            <span *ngIf="previous_line_confirm" [ngClass]="'green-icon'">Línea añadida</span>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div> 
+
+</ion-content>
+
+<ion-footer>
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+      <button ion-button icon-only item-end clear (click)="submitScan(ScanReader.value)">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>
+

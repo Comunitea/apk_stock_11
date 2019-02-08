@@ -9,7 +9,7 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>{{move_data && move_data['display_name'] || 'Líneas' }}</ion-title>
+    <ion-title>{{move_data && move_data['product_short_name'] || 'Líneas' }}</ion-title>
   <ion-buttons end>
   <button ion-button icon-only item-end (click)="lee_form()">
     <ion-icon name="megaphone"></ion-icon>
@@ -54,13 +54,21 @@
               <strong>Paquete:</strong> {{ move_data['package_id'][1] }}<br/>
             </span>
           <span *ngIf="move_data['location_id']" [ngClass]="{'red-icon': location_error, 'green-icon': original_location_barcode, 'orange-icon': new_origin_location_id}">
-            <strong>Origen:</strong> {{ move_data['location_id'][1] }}<br/>
+            <strong>Origen:</strong> {{ move_data['original_location_short_name'] || move_data['location_id'][1] }}<br/>
           </span>
           <span *ngIf="move_data['lot_id'] || move_data['lot_name']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
             <strong>Lote:</strong> {{ move_data['lot_id'][1] || move_data['lot_name'] }}<br/>
           </span>
-          <span *ngIf="move_data['product_id']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
-            <strong>Producto:</strong> {{ move_data['product_id'][2] }}<br/>
+          <span *ngIf="!move_data['lot_id'] && !move_data['lot_name'] && move_data['product_barcode']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <strong>Código de barras:</strong> {{ move_data['product_barcode'] }}<br/>
+          </span>
+          <span *ngIf="move_data['product_id'] && (step == 1 && !product_need_check)" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <a (click)="check_product_code(move_data['product_barcode'], 1)">
+              <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] }}<br/>
+            </a>
+          </span>
+          <span *ngIf="move_data['product_id'] && (step != 1 || product_need_check)" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] }}<br/>
           </span>
           <span *ngIf="move_data['product_qty']" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
             <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
@@ -68,7 +76,7 @@
         </ion-list>
         <ion-list *ngIf="step == 3 || step == 4">
             <span *ngIf="move_data['location_dest_id']" [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_barcode, 'orange-icon': change_location}">
-              <strong>Destino:</strong> {{ move_data['location_dest_id'][1] }}<br/>
+              <strong>Destino:</strong> {{ move_data['final_location_short_name'] || move_data['location_dest_id'][1] }}<br/>
             </span>
             <span *ngIf="move_data['result_package_id']">
               <strong>Paquete Destino:</strong> {{ move_data['result_package_id'][1] }}<br/>

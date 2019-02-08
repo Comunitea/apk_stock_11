@@ -1,0 +1,90 @@
+<!--
+  Generated template for the StockInventoryFormLinePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{ inventory_line_id && inventory_line_id['name'] || 'Línea de ajuste de inventario' }}</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="hide_scan_form = !hide_scan_form" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
+</ion-header>
+
+<ion-content padding>
+  <div>
+    <ion-item no-lines>
+        <button *ngIf="max_index != 1" ion-button item-start (click)="open_pick(-1)">
+          <<
+        </button>
+        <button ion-button item-start (click)="move_to_inventory(inventory_line_id['inventory_id'][0])">
+            Volver
+        </button>
+        <button *ngIf="max_index != 1" ion-button item-end (click)="open_pick(1)">
+          >>
+        </button>
+      </ion-item>
+  </div>
+
+  <div *ngIf="inventory_line_id">
+    <ion-card>
+        <ion-card-content>
+            <ion-row>
+              <strong>
+                {{ inventory_line_id['product_name'] }}
+              </strong>
+            </ion-row>
+            <ion-row>
+              <ion-col *ngIf="inventory_line_id['prod_lot_id']" [ngClass]="{'red-icon': lot_error, 'green-icon': lot_confirm}" text-start>
+                LOT:  {{ inventory_line_id['prod_lot_id'][1] }}
+              </ion-col>
+              <ion-col *ngIf="inventory_line_id['package_id']" [ngClass]="{'red-icon': pkg_error, 'green-icon': pkg_confirm}" text-end>
+                PAQ:  {{ inventory_line_id['package_id'][1] }}
+              </ion-col>
+              <ion-col *ngIf="inventory_line_id['package_id']" [ngClass]="{'red-icon': product_error, 'green-icon': product_confirm}" text-end>
+                BARCODE:  {{ inventory_line_id['product_barcode'] }}
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col text-start>
+                QTY (teo/real):  
+              </ion-col>
+              <ion-col text-end>
+                  <ion-badge color="odoo">{{ inventory_line_id['theoretical_qty'] }}</ion-badge>  / <ion-badge color="state_done" [ngClass]="{'red-icon': qty_error, 'green-icon': qty_confirm, 'orange-icon': qty_mod}">{{ inventory_line_id['product_qty'] }}</ion-badge>
+              </ion-col>
+            </ion-row>
+        </ion-card-content>
+    </ion-card>
+</div>
+  
+
+</ion-content>
+
+<ion-footer>
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+      <button ion-button icon-only item-end clear (click)="submitScan(ScanReader.value)">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>
+

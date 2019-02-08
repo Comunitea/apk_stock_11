@@ -67,13 +67,49 @@ export class MoveLineFormPage {
   location_dest_error: any
   repeat_read: boolean
   new_location: any
+  arrow_movement: boolean
+  product_need_check: boolean
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
-      this.scan_read(val)
       this.changeDetectorRef.detectChanges()
+      switch(val) {
+        case "left": {
+          if(this.arrow_movement == true) {
+            this.open_line(-1)
+            break
+          }
+        }
+
+        case "right": {
+          if(this.arrow_movement == true) {
+            this.open_line(1)
+            break
+          }
+        }
+
+        case "down": {
+          if(this.arrow_movement == true) {
+            this.backToPickingForm(true, 0)
+            break
+          }
+        }
+
+        case "up": {
+          if(this.arrow_movement == true) {
+            this.backToPickingForm(true, 0)
+            break
+          }
+        }
+
+        default: {
+          this.scan_read(val)
+          break
+        }
+      }
+      
     })
   }
 
@@ -91,6 +127,7 @@ export class MoveLineFormPage {
     this.max_ids = this.navParams.data.lines_ids.length
     this.location_barcode = false
     this.product_barcode = false
+    this.product_need_check = false
     this.original_location_barcode = false
     this.picking_type = this.navParams.data.picking_type
     this.change_location = false
@@ -104,6 +141,7 @@ export class MoveLineFormPage {
     this.qty_error = false
     this.location_dest_error = false
     this.step = 0
+    this.arrow_movement = true
   }
 
   ionViewDidLoad() {
@@ -120,6 +158,7 @@ export class MoveLineFormPage {
     this.id = this.navParams.data.lines_ids[this.index_lines]['id']
     this.location_barcode = false
     this.product_barcode = false
+    this.product_barcode = false
     this.original_location_barcode = false
     this.new_origin_location_barcode = false
     this.new_origin_location_name = false
@@ -127,7 +166,6 @@ export class MoveLineFormPage {
     this.change_location = false
     this.step = 0
     this.last_read = false
-    this.picking_type = false
     this.new_location_id = false
     this.new_location_barcode = false
     this.package_origin_confirm = false
@@ -147,6 +185,7 @@ export class MoveLineFormPage {
     this.product_error = false
     this.qty_error = false
     this.location_dest_error = false
+    this.product_need_check = false
     this.get_move_data(this.navParams.data.lines_ids[this.index_lines]['id'])
     this.sound.play('nav')
     this.changeDetectorRef.detectChanges();
@@ -157,22 +196,20 @@ export class MoveLineFormPage {
 
     this.stockInfo.get_stock_move(domain, 'form', 'stock.move.line').then((lines:Array<{}>)=> {
       this.move_data = lines[0]
-      this.stockInfo.get_product_template(this.move_data['product_id'][0]).then((lines:Array<{}>) => {
-        this.stockInfo.product_template_name(lines[0]['product_tmpl_id'][0]).then((lines:Array<{}>) => {
-          this.move_data['product_id'][2] = lines[0]['name']
-        })
-      })
+      this.changeDetectorRef.detectChanges();
 
       /* Dependiendo del tipo de transferencia ponemos a true los datos que no necesitamos comprobar. */
 
       switch (this.picking_type) {
         case 'incoming': {
           this.original_location_barcode = true
-          this.step = 1        
+          this.step = 1   
+          this.changeDetectorRef.detectChanges();     
           break;
         }
         case 'outgoing': {
           this.location_barcode = true
+          this.changeDetectorRef.detectChanges();
           break;
         }
         default: {
@@ -180,34 +217,45 @@ export class MoveLineFormPage {
         }
       }
 
+      if(this.move_data['product_need_check']) {
+        this.product_need_check = true
+        this.changeDetectorRef.detectChanges();
+      }
+
       if(!this.move_data['need_check']) {
         this.original_location_barcode = true
+        this.changeDetectorRef.detectChanges();
       }
 
       if(!this.move_data['need_dest_check']) {
         this.location_barcode = true
+        this.changeDetectorRef.detectChanges();
       }
 
       if(!this.move_data['package_id']){
         this.package_origin = false
+        this.changeDetectorRef.detectChanges();
       } 
 
       if(!this.move_data['result_package_id']){
         this.package_dest = false
+        this.changeDetectorRef.detectChanges();
       }
       console.log(this.move_data)
-      this.changeDetectorRef.detectChanges();
+
     })
     .catch((mierror) => {
       this.move_data = []
       this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar el pick')
+      this.changeDetectorRef.detectChanges();
     })
+
     return
   }
 
 
+
   scan_read(val){
-    console.log(val)
     if (this.last_read==val){
       this.repeat_read = true
     }
@@ -215,8 +263,6 @@ export class MoveLineFormPage {
       this.repeat_read = false
       this.last_read = val
     }
-    console.log(this.step)
-    console.log(this.move_data)
     /* Si no es un paquete y no requiere check entonces pasa al siguiente paso. */
     if(this.step == 0 && !this.package_origin && this.original_location_barcode) {
       this.step = 1
@@ -364,23 +410,23 @@ export class MoveLineFormPage {
         this.changeDetectorRef.detectChanges()
       } else {
         /* Si no existe comprueba el código de barras. */
-        this.stockInfo.check_barcode(val, this.move_data['product_id'][0]).then((lines:Array<{}>) => {
-          if(lines.length > 0) {
-            this.product_barcode = true
-            this.check_step(this.step)
-            this.step = step+1
-            this.check_if_end_of_line()
-            this.changeDetectorRef.detectChanges()
+
+        if(val == this.move_data['product_barcode']) {
+          this.product_barcode = true
+          this.check_step(this.step)
+          this.step = step+1
+          this.check_if_end_of_line()
+          this.changeDetectorRef.detectChanges()
+        } else {
+          /* Si no existe comprobamos en qué paso estamos. Si estamos en el paso 2 es que ha introducido una cantidad, la verificamos. */
+          if (this.step == 2) {
+            this.new_qt_check(val)
           } else {
-            /* Si no existe comprobamos en qué paso estamos. Si estamos en el paso 2 es que ha introducido una cantidad, la verificamos. */
-            if (this.step == 2) {
-              this.new_qt_check(val)
-            } else {
-              this.product_error = true
-            }
-            this.changeDetectorRef.detectChanges()
+            this.product_error = true
           }
-        });
+          this.changeDetectorRef.detectChanges()
+          }
+
       }
     } else {
       /* Si tiene lot_id verifica que sea el mismo */
@@ -519,7 +565,6 @@ export class MoveLineFormPage {
 
   input_confirm(){
     this.changeDetectorRef.detectChanges()
-    console.log(this.new_package)
     /* Si se ha indicado que hay que introducir los productos en un nuevo paquete lo creamos. */  
     if(this.new_package) {
       var name = 'PQT' + this.id
@@ -545,6 +590,7 @@ export class MoveLineFormPage {
         '0': false,
         '1': this.move_data['lot_name']
       }
+      this.changeDetectorRef.detectChanges()
     }
     this.stockInfo.picking_line_to_done('stock.move.line', this.id, this.move_data).then((lines:Array<{}>) => {
       let next_line = this.index_lines + 1
@@ -566,6 +612,7 @@ export class MoveLineFormPage {
 
   toggle_scan_form() {
     this.hide_scan_form = !this.hide_scan_form
+    this.arrow_movement = !this.arrow_movement
     this.changeDetectorRef.detectChanges()
   }
 

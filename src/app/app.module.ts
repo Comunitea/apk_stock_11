@@ -19,12 +19,18 @@ import { MoveLineFormPage } from '../pages/move-line-form/move-line-form'
 import { ProductListPage } from '../pages/product-list/product-list';
 import { ProductFormPage } from '../pages/product-form/product-form';
 import { LotFormPage } from '../pages/lot-form/lot-form';
+import { StockInventoryPage } from '../pages/stock-inventory/stock-inventory';
+import { StockInventoryFormPage } from '../pages/stock-inventory-form/stock-inventory-form';
+import { StockInventoryCreatePage } from '../pages/stock-inventory-create/stock-inventory-create';
+import { StockInventoryFormLinePage } from '../pages/stock-inventory-form-line/stock-inventory-form-line';
+import { StockInventoryFormNewLinePage } from '../pages/stock-inventory-form-new-line/stock-inventory-form-new-line';
 
 import { ScannerProvider } from '../providers/scanner/scanner';
 import { ProductProvider } from '../providers/products/products';
 import { SoundsProvider } from '../providers/sounds/sounds';
 import { OdooProvider } from '../providers/odoo/odoo';
 import { StockProvider } from '../providers/stock/stock';
+
 
 
 @NgModule({
@@ -37,13 +43,18 @@ import { StockProvider } from '../providers/stock/stock';
     MoveLineFormPage,
     ProductListPage,
     ProductFormPage,
-    LotFormPage
+    LotFormPage,
+    StockInventoryPage,
+    StockInventoryFormPage,
+    StockInventoryCreatePage,
+    StockInventoryFormLinePage,
+    StockInventoryFormNewLinePage
   ],
   imports: [
     BrowserModule,
     HttpModule,
     IonicModule.forRoot(MyApp),
-    IonicStorageModule.forRoot()    
+    IonicStorageModule.forRoot()
     /* Para Android ~9 hay que poner poner websql para que funcione.
     
     IonicStorageModule.forRoot(
@@ -65,8 +76,12 @@ import { StockProvider } from '../providers/stock/stock';
     MoveLineFormPage,
     ProductListPage,
     ProductFormPage,
-    LotFormPage
-
+    LotFormPage,
+    StockInventoryPage,
+    StockInventoryFormPage,
+    StockInventoryCreatePage,
+    StockInventoryFormLinePage,
+    StockInventoryFormNewLinePage
   ],
   providers: [
     StatusBar,

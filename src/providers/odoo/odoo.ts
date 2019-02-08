@@ -93,7 +93,7 @@ export class OdooProvider {
                                 resolve(res);
                             })
                             .catch( (error) => {
-                                var err = {'title': 'Error!', 'msg': 'Fallo al llamar al método ' + method + 'del modelo app.regustry'}
+                                var err = {'title': 'Error!', 'msg': 'Fallo al llamar al método ' + method + ' del modelo app.regustry'}
                                 reject(err);
                             });
                     })
@@ -187,7 +187,6 @@ export class OdooProvider {
             		else {
                     odoo.login(con_data.username, con_data.password).then((uid) => {
                             odoo.create(model, values).then((res) => {
-                                console.log(res)
                                 resolve(res);
                             })
                             .catch( (error) => {
