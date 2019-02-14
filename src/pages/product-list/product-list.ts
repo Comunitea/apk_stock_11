@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
 import { ProductProvider } from '../../providers/products/products'
 import { ScannerProvider } from '../../providers/scanner/scanner'
@@ -29,23 +29,47 @@ export class ProductListPage {
   current_product_ids: any
   ScanReader: FormGroup;
   actual_page: number
+  total_products: any
+  total_pages: any
+  arrow_movement: boolean
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    let code 
-    code = this.scanner.key_press(event)
+    this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
-      console.log(val)
-      this.scan_read(val)
-    })
-  
-    }
+      this.changeDetectorRef.detectChanges()
+      switch(val) {
+        case "left": {
+          if(this.arrow_movement == true) {
+            this.prev_page()
+            break
+          }
+        }
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
+        case "right": {
+          if(this.arrow_movement == true) {
+            this.next_page()
+            break
+          }
+        }
+
+        default: {
+          this.scan_read(val)
+          break
+        }
+      }
+      
+    })
+  }
+
+  constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
         private productInfo: ProductProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
         this.product_type_filter = 0
         this.actual_page = 0
-        this.initStockProduct(this.actual_page);
+        this.checkActualPage()
+        this.initStockProduct(this.actual_page);   
+        this.scanner.on()
+        this.arrow_movement = true     
   }
 
   filter_picks(product_type, value){
@@ -62,32 +86,43 @@ export class ProductListPage {
       this.current_product_ids[i]['index'] = i
     }
   }
+
+  checkActualPage() {
+    if (this.navParams.data.actual_page) {
+      this.actual_page = this.navParams.data.actual_page
+    }
+  }
+
   ionViewDidLoad() {
     console.log('ionViewDidLoad ProductListPage');
   }
  
-  change_hide_scan_form() {
-    this.scanner.hide_scan_form = !this.scanner.hide_scan_form
-  }
-
   scan_read(val){
     
   }
+
+  toggle_scan_form() {
+    this.scanner.hide_scan_form = !this.scanner.hide_scan_form
+    this.arrow_movement = !this.arrow_movement
+    this.changeDetectorRef.detectChanges()
+  }
+
   open_pick(product_id: number = 0){
-    
-    let val = {'index': product_id, 'product_ids': this.current_product_ids}
+   
     this.sound.play('nav')
+    let val = {'index': product_id, 'product_ids': this.current_product_ids, 'current_page': this.actual_page}
     this.navCtrl.setRoot(ProductFormPage, val)
 
-
   }
+
   get_product_domain(){
-    var domain = []
+    var domain = [['type', '=', 'product']]
     if (this.product_type_filter != 0){
       domain = [['type', '=', this.product_type_filter]]
     }
    return domain
   }
+
   submitScan(value=false){
     let scan
     if (!this.ScanReader.value['scan']){
@@ -103,8 +138,8 @@ export class ProductListPage {
   }
 
   initStockProduct(val){
+    this.get_total()
     var domain = this.get_product_domain()
-    console.log(domain)
     this.productInfo.get_product_data(domain, 'tree', val, 50).then((picks)=> {
       this.stock_product_ids = []
       for (var pick in picks){
@@ -120,13 +155,31 @@ export class ProductListPage {
     return
   }
 
+  get_total() {
+    this.productInfo.get_total_products().then((result) => {
+      this.total_products = result
+      this.total_pages = Math.floor(this.total_products / 50)
+      this.changeDetectorRef.detectChanges()
+    })
+    .catch((mierror) => {
+      this.stock_product_ids = []
+      this.productInfo.presentAlert('Error de conexión', 'Error al recuperar los pick')
+    })
+  }
+
   prev_page() {
     this.actual_page -= 1
+    if(this.actual_page < 0) {
+      this.actual_page = this.total_pages
+    }
     this.initStockProduct(this.actual_page)
   }
 
   next_page() {
     this.actual_page += 1
+    if(this.actual_page > this.total_pages) {
+      this.actual_page = 0
+    }
     this.initStockProduct(this.actual_page)
   }
 }

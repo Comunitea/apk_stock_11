@@ -4,6 +4,7 @@ import {Component} from '@angular/core';
 import {Storage} from '@ionic/storage';
 
 import { OdooProvider } from '../../providers/odoo/odoo';
+import { StockProvider } from '../../providers/stock/stock'
 import { PickingListPage } from '../picking-list/picking-list';
 
 
@@ -18,9 +19,9 @@ export class HomePage {
     CONEXION = {
         url: 'http://localhost',
         port: '8069',
-        db: 'anzamar',
-        username: 'comunitea',
-        password: 'comunita',
+        db: '',
+        username: '',
+        password: '',
         uid : 0,
         context: {},
         user: {}
@@ -37,10 +38,13 @@ export class HomePage {
     };
     cargar = false;
     mensaje = '';
+    available_warehouses = [];
+    testRadioOpen:  boolean;
+    testRadioResult;
 
     constructor(public navCtrl: NavController, public navParams: NavParams, 
                 private storage: Storage, public alertCtrl: AlertController,
-                private odoo: OdooProvider) {
+                private odoo: OdooProvider, private stockInfo: StockProvider) {
 	
         if (this.navParams.get('login')){
             this.CONEXION.username = this.navParams.get('login')
@@ -51,7 +55,7 @@ export class HomePage {
         }
         else {
             // Autologin al cargar app
-            this.cargar = true;
+            this.cargar = false;
             this.conectarApp(false);
         }
     }
@@ -126,7 +130,7 @@ export class HomePage {
     check_conexion(con) {	
         var model = 'res.users'
         var domain = [['login', '=', con.username]]
-        var fields = ['id', 'login', 'image', 'name', 'company_id']
+        var fields = ['id', 'login', 'image', 'name', 'company_id', 'company_ids']
         this.odoo.login(con.username, con.password).then ((uid) => {
             this.odoo.uid = uid
             this.odoo.search_read(model, domain, fields).then((value) => {
@@ -134,7 +138,13 @@ export class HomePage {
                 if (value) {
                     this.storage.set('USER', value).then(() => {
                     this.cargar=false
-                    this.navCtrl.setRoot(PickingListPage);
+                    if(value[0]['company_ids'].length == 1) {
+                        this.storage.set('selected_warehouse', value[0]['company_id']).then(() => {
+                            this.navCtrl.setRoot(PickingListPage);
+                        })
+                    } else {
+                        this.get_warehouse_options(value[0]['company_ids'])
+                    }                
                   })
                 }
             })
@@ -143,5 +153,52 @@ export class HomePage {
                 this.presentAlert('Error!', 'No se pudo encontrar el usuario:' + con.username);
             });
         })
+        .catch(() => {
+            this.cargar = false;
+            this.presentAlert('Error!', 'El usuario o contraseña son incorrectos.');
+        });
+    }
+
+    get_warehouse_options(locations) {
+
+        this.stockInfo.get_available_warehouse_info(locations, 'form').then((lines:Array<{}>) => {
+            this.show_warehouse_options(lines)
+        })
+        .catch(() => {
+            this.cargar = false;
+            this.presentAlert('Error!', 'No se pueden recuperar los almacenes');
+        });
+        
+    }
+
+    show_warehouse_options(lines) {
+
+        this.available_warehouses = lines
+        let alert = this.alertCtrl.create();
+        alert.setTitle('Selecciona un almacén');
+
+        this.available_warehouses.forEach(warehouse => {
+
+            alert.addInput({
+                type: 'radio',
+                label: warehouse['name'],
+                value: warehouse['company_id'][0]
+            })
+
+        });
+
+        alert.addButton('Cancel');
+        alert.addButton({
+            text: 'Ok',
+            handler: data => {
+                this.testRadioOpen = false;
+                this.testRadioResult = data;
+                this.storage.set('selected_warehouse', data).then(() => {
+                    this.navCtrl.setRoot(PickingListPage);
+                })
+            }
+        });
+        alert.present();
+
     }
 }

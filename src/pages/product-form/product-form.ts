@@ -11,6 +11,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer} from '@angular/platform-browser';
 import { PickingFormPage } from '../picking-form/picking-form';
 import { LotFormPage } from '../lot-form/lot-form';
+import { StockInventoryFormPage } from '../stock-inventory-form/stock-inventory-form'
 
 
 
@@ -37,50 +38,114 @@ export class ProductFormPage {
   max_index: number
   move_model: string
   ScanReader: FormGroup
-  product_last_movements: {}
+  product_last_movements: any
   product_last_lots: {}
   product_real_id: any
+  id_to_open: any
+  last_product_id: any
+  first_product_id: any
+  current_page: any
+  arrow_movement: boolean
+  current_inventory_list: any
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    let code 
-    code = this.scanner.key_press(event)
+    this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
-      this.scan_read(val)
-    })
-  
-    }
+      this.changeDetectorRef.detectChanges()
+      switch(val) {
+        case "left": {
+          if(this.arrow_movement == true) {
+            this.open_pick(this.stock_product_id['name'], 0)
+            break
+          }
+        }
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
+        case "right": {
+          if(this.arrow_movement == true) {
+            this.open_pick(this.stock_product_id['name'], 1)
+            break
+          }
+        }
+
+        case "down": {
+          if(this.arrow_movement == true) {
+            this.backToProductList()
+            break
+          }
+        }
+
+        case "up": {
+          if(this.arrow_movement == true) {
+            this.backToProductList()
+            break
+          }
+        }
+
+        default: {
+          this.scan_read(val)
+          break
+        }
+      }
+      
+    })
+  }
+
+  constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
         private productInfo: ProductProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
           this.index = Number(this.navParams.data.index)
           this.max_index = this.navParams.data.product_ids.length
+          this.current_page = this.navParams.data.current_page
           this.get_product_id(this.index)
+          this.scanner.on()
+          this.arrow_movement = true
+          this.current_inventory_list = []
+          this.product_last_movements = []
+
   }
 
   open_pickform(picking_id: number = 0){
-    
-    let val = {'index': picking_id, 'picking_ids': this.product_last_movements}
     this.sound.play('nav')
+    let val = {'index': picking_id, 'picking_ids': this.product_last_movements}
     this.navCtrl.setRoot(PickingFormPage, val)
   }
 
-  open_pick(index: number = 0){
-    this.index = this.index + Number(index)
-    if (this.index >= this.max_index){this.index=0}
-    if (this.index < 0 ){this.index=this.max_index-1}
-    this.get_product_id(this.navParams.data.product_ids[this.index]['id'])
+  open_inventoryform(inventory_id: number = 0) {
     this.sound.play('nav')
+    let val = {'index': inventory_id, 'inventory_ids': this.current_inventory_list, 'type': 'list'}
+    this.navCtrl.setRoot(StockInventoryFormPage, val)  
+  }
+
+  open_pick(name, option){
+    this.sound.play('nav')  
+    let val
+    this.productInfo.get_next_template_id(name, option).then((valor:Array<{}>) => {
+      if(valor.length == 0) {
+        if (option == 0) {
+          val = {'index': this.last_product_id, 'product_ids': ' ', 'current_page': this.current_page}
+          this.changeDetectorRef.detectChanges()
+        }
+        if (option == 1) {
+          val = {'index': this.first_product_id, 'product_ids': ' ', 'current_page': this.current_page}
+          this.changeDetectorRef.detectChanges()
+        }
+      } else {
+        val = {'index': valor[0]['id'], 'product_ids': ' ', 'current_page': this.current_page}
+        this.changeDetectorRef.detectChanges()
+      }
+      this.navCtrl.setRoot(ProductFormPage, val)
+    })
   }
 
   open_lotform(lot_id: number = 0){
-    
-    let val = {'index': lot_id, 'lots_ids': this.product_last_lots}
     this.sound.play('nav')
+    let val = {'index': lot_id, 'lots_ids': this.product_last_lots}
     this.navCtrl.setRoot(LotFormPage, val)
   }
 
   get_product_id(id){
+    this.get_last_product()
+    this.get_first_product()
     var domain = [['id', '=', id]]
     this.productInfo.get_product_data(domain, 'form', 0, 1).then((picks:Array<{}>)=> {
       this.stock_product_id = picks[0]
@@ -93,21 +158,44 @@ export class ProductFormPage {
       }
       domain = [['product_tmpl_id', '=', id]]
       this.productInfo.get_product_real_id(domain, 'form').then((real_id:Array<{}>)=> {
-        domain = [['product_id', '=', real_id[0]['id']]]
-        if (this.stock_product_id['tracking'] != "none") {
-          this.productInfo.get_last_lots(domain, 'form').then((lots:Array<{}>)=> {
-            this.product_last_lots = lots
-            console.log(this.product_last_lots)
+        if(real_id) {
+          domain = [['product_id', '=', real_id[0]['id']]]
+          if (this.stock_product_id['tracking'] != "none") {
+            this.productInfo.get_last_lots(domain, 'form').then((lots:Array<{}>)=> {
+              this.product_last_lots = lots
+            })
+          }
+          this.productInfo.get_last_movements(domain, 'form').then((movements:Array<{}>)=> {
+            movements.forEach(movement => {
+              var container = []
+              if(movement['picking_id']) {
+                container['index'] = this.product_last_movements.length
+                container['id'] = movement['picking_id'][0]
+                container['reference'] = movement['reference']
+                this.product_last_movements.push(container)
+                this.changeDetectorRef.detectChanges()
+              } else if(movement['inventory_id']) {
+                container['index'] = this.current_inventory_list.length
+                container['id'] = movement['inventory_id'][0]
+                container['reference'] = movement['reference']
+                this.current_inventory_list.push(container)
+                this.changeDetectorRef.detectChanges()
+              } else {
+                console.log("No hay movimientos")
+              }
+              this.changeDetectorRef.detectChanges()
+
+            });
+          })
+          .catch((mierror) => {
+            console.log(mierror)
           })
         }
-        this.productInfo.get_last_movements(domain, 'form').then((movements:Array<{}>)=> {
-          this.product_last_movements = movements
-          for (var i in this.product_last_movements){
-            this.product_last_movements[i]['index'] = i
-            this.product_last_movements[i]['id'] = this.product_last_movements[i]['picking_id'][0]
-          }
-        })
       })
+      .catch((mierror) => {
+        console.log(mierror)
+      })
+      return
     })
     .catch((mierror) => {
       this.stock_product_id = []
@@ -116,12 +204,57 @@ export class ProductFormPage {
     return
   }
 
+  get_last_product() {
+    this.productInfo.get_last_product_id().then((result) => {
+      this.last_product_id = result[0]['id']
+      this.changeDetectorRef.detectChanges()
+    })
+    .catch((mierror) => {
+      this.last_product_id = []
+      this.productInfo.presentAlert('Error de conexión', 'Error al recuperar los pick')
+    })
+  }
+  
+  get_first_product() {
+    this.productInfo.get_first_product_id().then((result) => {
+      this.first_product_id = result[0]['id']
+      this.changeDetectorRef.detectChanges()
+    })
+    .catch((mierror) => {
+      this.first_product_id = []
+      this.productInfo.presentAlert('Error de conexión', 'Error al recuperar los pick')
+    })
+  }
+
+  submitScan(value: any):void {
+    /* El submit para las pruebas sin pistola. */
+    if(value.scan) {
+      this.scan_read(value.scan)
+    }
+    this.changeDetectorRef.detectChanges()
+  }
+
+  check_scan(scan){
+    return true
+  }
+
   scan_read(val){
-    //this.odootools.presentToast('Picking form ' + val)
+    //this.stockInfo.check_barcode_or_lot(val, this.stock_picking_id['id'])
+  }
+
+  toggle_scan_form() {
+    this.hide_scan_form = !this.hide_scan_form
+    this.arrow_movement = !this.arrow_movement
+    this.changeDetectorRef.detectChanges()
   }
 
   open_form (model, id){
 
+  }
+
+  backToProductList() {
+    let val = {'actual_page': this.current_page}
+    this.navCtrl.setRoot(ProductListPage, val)
   }
 }
 

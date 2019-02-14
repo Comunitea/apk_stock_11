@@ -159,7 +159,7 @@ export class StockInventoryFormLinePage {
       }
   
       if(!this.pkg_confirm && !this.lot_confirm) {
-        if(this.check_vals(val, this.inventory_line_id['product_barcode'])) {
+        if(this.check_vals(val, this.inventory_line_id['product_barcode']) || this.check_vals(val, this.inventory_line_id['product_default_code'])) {
           this.product_confirm = true
           this.changeDetectorRef.detectChanges()
         }

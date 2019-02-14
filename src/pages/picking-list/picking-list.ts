@@ -28,6 +28,8 @@ export class PickingListPage {
   stock_picking_ids: any
   current_picks_ids: any
   ScanReader: FormGroup;
+  picking_type_init_filter: any
+  default_warehouse: any
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -43,8 +45,10 @@ export class PickingListPage {
   constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
         private stockInfo: StockProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
         this.picking_type_filter = 0
+        this.picking_type_init_filter = []
+        this.get_selected_warehouse()
         this.initPickingTypes()
-        this.initStockPicking();
+        //this.initStockPicking();
   }
 
   filter_picks(picking_type, value){
@@ -61,6 +65,7 @@ export class PickingListPage {
       this.current_picks_ids[i]['index'] = i
     }
   }
+  
   ionViewDidLoad() {
     console.log('ionViewDidLoad PickingListPage');
   }
@@ -88,6 +93,7 @@ export class PickingListPage {
     domain.push(['state','not in', ['cancel','done']])
    return domain
   }
+  
   submitScan(value=false){
     let scan
     if (!this.ScanReader.value['scan']){
@@ -101,15 +107,19 @@ export class PickingListPage {
     this.sound.recon_voice([this.ScanReader.value['scan']])  
     
   }
+
   initPickingTypes(){
     /* let domain = [['code', '=', 'outgoing']] */
-    let domain = []
+    let domain = [['show_in_pda', '=', true]]
     this.stockInfo.get_picking_types(domain).then((picks)=> {
       this.picking_types = []
       for (var type in picks){
         picks[type]['index'] = type
         this.picking_types.push(picks[type])
+        this.picking_type_init_filter.push(picks[type]['id'])
       }
+
+      this.initStockPicking()
     })
     .catch((mierror) => {
       this.picking_types = []
@@ -120,7 +130,8 @@ export class PickingListPage {
 
   initStockPicking(){
     var domain = this.get_picking_domain()
-    console.log(domain)
+    domain.push(['picking_type_id','in',this.picking_type_init_filter])
+    domain.push(['company_id', '=', this.default_warehouse])
     this.stockInfo.get_stock_picking(domain).then((picks)=> {
       this.stock_picking_ids = []
       for (var pick in picks){
@@ -134,6 +145,12 @@ export class PickingListPage {
       this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar los pick')
     })
     return
+  }
+
+  get_selected_warehouse(){
+    this.storage.get('selected_warehouse').then((val) => {
+      this.default_warehouse = val
+    })
   }
 }
 

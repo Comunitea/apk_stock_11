@@ -15,10 +15,11 @@ export class ProductProvider {
   STOCK_FIELDS = {
     'product.template': {
       'form': ['id', 'name', 'description', 'type', 'categ_id', 'list_price', 'weight', 'default_code', 'image_medium', 'tracking'],
-      'tree': ['id', 'name', 'description', 'type', 'categ_id', 'list_price', 'weight', 'default_code', 'image_medium', 'tracking']
+      'tree': ['id', 'name', 'description', 'type', 'categ_id', 'list_price', 'weight', 'default_code', 'image_medium', 'tracking'],
+      'id': ['id']
     },
     'stock.move': {
-      'form': ['id', 'reference', 'product_id', 'picking_id'],
+      'form': ['id', 'reference', 'product_id', 'picking_id', 'inventory_id'],
       'tree': ['id', 'reference', 'product_id', 'picking_id']
     },
     'stock.production.lot': {
@@ -155,8 +156,6 @@ export class ProductProvider {
     })
     return promise
   }
-    
-
   
   presentAlert(titulo, texto) {
     const alert = this.alertCtrl.create({
@@ -165,6 +164,96 @@ export class ProductProvider {
         buttons: ['Ok'],
     });
     alert.present();
+  }
+
+  get_total_products() {
+    var self = this
+    var model 
+    var domain = [['type', '=', 'product']]
+     
+    model = 'product.template'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'search_count', domain).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  get_next_template_id(name, option){
+    var self = this
+    var model
+    if (option == 0) {
+      var domain = [['name', '<', name], ['type', '=', 'product']]
+      var filter = 'name DESC, default_code'
+    } else if (option == 1) {
+      var domain = [['name', '>', name], ['type', '=', 'product']]
+      var filter = 'name, default_code'
+    }
+
+    model = 'product.template'
+    var type = 'id'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  get_last_product_id(){
+    var self = this
+    var model
+    var domain = [['type', '=', 'product']]
+    var filter = 'name DESC'
+
+
+    model = 'product.template'
+    var type = 'id'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  get_first_product_id(){
+    var self = this
+    var model
+    var domain = [['type', '=', 'product']]
+    var filter = 'name ASC'
+
+
+    model = 'product.template'
+    var type = 'id'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
   }
 
   

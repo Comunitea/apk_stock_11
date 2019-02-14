@@ -32,7 +32,6 @@ export class MoveLineFormPage {
   promiseDone: boolean
   ScanReader: FormGroup
   hide_scan_form: boolean
-  scan_check: boolean
   index_lines: any
   lines_ids: any
   max_ids: number
@@ -121,7 +120,6 @@ export class MoveLineFormPage {
     this.index = this.navParams.data.index
     this.picking_ids = this.navParams.data.picking_ids
     this.scanner.on()
-    this.scan_check = false
     this.index_lines = this.navParams.data.index_lines
     this.lines_ids = this.navParams.data.lines_ids
     this.max_ids = this.navParams.data.lines_ids.length
@@ -241,7 +239,8 @@ export class MoveLineFormPage {
         this.package_dest = false
         this.changeDetectorRef.detectChanges();
       }
-      console.log(this.move_data)
+
+      this.check_on_start()
 
     })
     .catch((mierror) => {
@@ -253,8 +252,6 @@ export class MoveLineFormPage {
     return
   }
 
-
-
   scan_read(val){
     if (this.last_read==val){
       this.repeat_read = true
@@ -262,10 +259,6 @@ export class MoveLineFormPage {
     else {
       this.repeat_read = false
       this.last_read = val
-    }
-    /* Si no es un paquete y no requiere check entonces pasa al siguiente paso. */
-    if(this.step == 0 && !this.package_origin && this.original_location_barcode) {
-      this.step = 1
     }
 
     switch (this.step) {
@@ -397,6 +390,14 @@ export class MoveLineFormPage {
     }
   }
 
+  check_on_start() {
+    /* Si no es un paquete y no requiere check entonces pasa al siguiente paso. */
+    if(this.step == 0 && !this.package_origin && this.original_location_barcode) {
+      this.step = 1
+      this.changeDetectorRef.detectChanges()
+    }
+  }
+
   check_product_code(val, step) {
 
     if(this.move_data['lot_id'] == false) {
@@ -405,16 +406,15 @@ export class MoveLineFormPage {
         this.product_barcode = true
         /* Si estamos en el paso 2 (comprobando cantidades) cambiamos el mensaje y actualizamos la cantidad hecha. */
         this.check_step(this.step)
-        this.step = step+1
+        this.step = Number(step) + 1
         this.check_if_end_of_line()
         this.changeDetectorRef.detectChanges()
       } else {
         /* Si no existe comprueba el código de barras. */
-
-        if(val == this.move_data['product_barcode']) {
+        if(val == this.move_data['product_barcode'] || val == this.move_data['default_code']) {
           this.product_barcode = true
           this.check_step(this.step)
-          this.step = step+1
+          this.step = Number(step) + 1
           this.check_if_end_of_line()
           this.changeDetectorRef.detectChanges()
         } else {
@@ -433,7 +433,7 @@ export class MoveLineFormPage {
       if(val == this.move_data['lot_id'][1]) {
         this.product_barcode = true
         this.check_step(this.step)
-        this.step = step+1
+        this.step = Number(step) + 1
         this.check_if_end_of_line()
         this.changeDetectorRef.detectChanges()
       } else {

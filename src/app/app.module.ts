@@ -24,6 +24,8 @@ import { StockInventoryFormPage } from '../pages/stock-inventory-form/stock-inve
 import { StockInventoryCreatePage } from '../pages/stock-inventory-create/stock-inventory-create';
 import { StockInventoryFormLinePage } from '../pages/stock-inventory-form-line/stock-inventory-form-line';
 import { StockInventoryFormNewLinePage } from '../pages/stock-inventory-form-new-line/stock-inventory-form-new-line';
+import { StockMoveListPage } from '../pages/stock-move-list/stock-move-list';
+import { StockMoveFormPage } from '../pages/stock-move-form/stock-move-form';
 
 import { ScannerProvider } from '../providers/scanner/scanner';
 import { ProductProvider } from '../providers/products/products';
@@ -48,7 +50,9 @@ import { StockProvider } from '../providers/stock/stock';
     StockInventoryFormPage,
     StockInventoryCreatePage,
     StockInventoryFormLinePage,
-    StockInventoryFormNewLinePage
+    StockInventoryFormNewLinePage,
+    StockMoveListPage,
+    StockMoveFormPage
   ],
   imports: [
     BrowserModule,
@@ -81,7 +85,9 @@ import { StockProvider } from '../providers/stock/stock';
     StockInventoryFormPage,
     StockInventoryCreatePage,
     StockInventoryFormLinePage,
-    StockInventoryFormNewLinePage
+    StockInventoryFormNewLinePage,
+    StockMoveListPage,
+    StockMoveFormPage
   ],
   providers: [
     StatusBar,

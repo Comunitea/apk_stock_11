@@ -2,11 +2,13 @@ import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { HomePage } from '../pages/home/home'
+import { HomePage } from '../pages/home/home';
 import { PickingListPage } from '../pages/picking-list/picking-list';
 import { SoundsProvider } from '../providers/sounds/sounds'
 import { ProductListPage } from '../pages/product-list/product-list'
 import { StockInventoryPage } from '../pages/stock-inventory/stock-inventory';
+import { StockMoveListPage } from '../pages/stock-move-list/stock-move-list';
+import { StockMoveFormPage } from '../pages/stock-move-form/stock-move-form';
 
 @Component({
   templateUrl: 'app.html'
@@ -26,7 +28,8 @@ export class MyApp {
       { title: 'Home', component: HomePage },
       { title: 'Albaranes', component: PickingListPage },
       { title: 'Productos', component: ProductListPage },
-      { title: 'Ajustes de inventario', component: StockInventoryPage }
+      { title: 'Ajustes de inventario', component: StockInventoryPage },
+      { title: 'Movimientos de stock', component: StockMoveListPage }
     ];
     this.sound.preload('nav', 'assets/sounds/nav.mp3')
     this.sound.preload('barcode_ok', 'assets/sounds/barcode_ok.mp3')
@@ -36,6 +39,11 @@ export class MyApp {
     this.sound.preload('fatal_error', 'assets/sounds/error_1.mp3')
     this.sound.preload('press', 'assets/sounds/key_press.mp3')
     this.sound.preload('beep', 'assets/sounds/beep.mp3')
+  }
+
+  sessionDestroy() {
+    let val = {borrar: true}
+    this.nav.setRoot(HomePage, val)  
   }
 
   initializeApp() {

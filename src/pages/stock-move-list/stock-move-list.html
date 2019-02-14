@@ -1,0 +1,72 @@
+<!--
+  Generated template for the PickingListPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Movimientos de stock</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="change_hide_scan_form()" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
+</ion-header>
+
+
+<ion-content padding>
+
+  <div >
+      <ion-segment *ngIf="move_status">
+        <ion-segment-button value="All" (click)="move_filter('type', 0)"><ion-icon name="apps"></ion-icon></ion-segment-button>
+        <ion-segment-button *ngFor="let move_state of move_status" value="{{ move_state && move_state['code']}}" (click)="move_filter('type', move_state.code)">{{ move_state.name }}</ion-segment-button>
+      </ion-segment>
+    </div>
+
+  <div>
+      <ion-item text-end>
+      <ion-icon item-start class="blue-icon" name="add-circle" md="md-add-circle"></ion-icon>
+      <ion-label color="odoo" (click)="newStockMovement()">Nuevo Movimiento</ion-label>
+    </ion-item>
+    <ion-item-options side="left">
+      <button ion-button color="odoo">
+        <ion-icon name="refresh"></ion-icon>
+        Nuevo
+      </button>
+    </ion-item-options>
+    <ion-item-sliding *ngFor="let stock_moves of current_stock_moves">
+      <ion-item text-end >
+        <ion-icon name="calendar" item-start ></ion-icon>
+        <ion-label color="odoo" (click)= "open_pick(stock_moves['index'])">[{{stock_moves['index']}}] {{ stock_moves['product_id'][1]}} </ion-label>
+      </ion-item>
+    </ion-item-sliding>
+  </div>
+</ion-content>
+<ion-footer>
+
+  <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="scanner.hide_scan_form">
+    <ion-item>
+      <ion-label color="primary" item-start>Scan: </ion-label>
+      <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+    
+      <button ion-button icon-only item-end clear (click)="submitScan()">
+        <ion-icon name="barcode"></ion-icon>
+      </button>
+    </ion-item>   
+  </form>
+</ion-footer>
+

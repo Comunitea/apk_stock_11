@@ -23,19 +23,18 @@ import { StockInventoryCreatePage } from '../stock-inventory-create/stock-invent
   templateUrl: 'stock-inventory.html',
 })
 export class StockInventoryPage {
-  pet: string = "puppies";
   current_inventory_list: any
   full_inventory_list: any
   inventory_type_filter: any
   inventory_types: any
   ScanReader: FormGroup;
+  default_warehouse: any
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     let code 
     code = this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
-      console.log(val)
       this.scan_read(val)
     })
   
@@ -57,7 +56,7 @@ export class StockInventoryPage {
           'name': 'En proceso',
           'index': 1
         }
-        this.init_inventory_list();
+        this.get_selected_warehouse()
   }
 
   ionViewDidLoad() {
@@ -81,9 +80,10 @@ export class StockInventoryPage {
   submitScan(value=false){
   }
 
-  init_inventory_list() {
+  init_inventory_list() {    
     var domain = this.get_inventory_domain()
-    console.log(domain)
+    
+    domain.push(['company_id', '=', this.default_warehouse])
 
     this.stockInfo.get_inventory_movements(domain, 'tree').then((lines:Array<{}>) => {
       this.full_inventory_list = []
@@ -128,6 +128,13 @@ export class StockInventoryPage {
     this.navCtrl.setRoot(StockInventoryCreatePage)
   }
   
+
+  get_selected_warehouse(){
+    this.storage.get('selected_warehouse').then((val) => {
+      this.default_warehouse = val
+      this.init_inventory_list();
+    })
+  }
 
   
 }

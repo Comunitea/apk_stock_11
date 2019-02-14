@@ -38,18 +38,51 @@ export class PickingFormPage {
   todayDate: any
   dateToday: any
   picking_type: any
+  arrow_movement: boolean
   
-
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    let code 
-    code = this.scanner.key_press(event)
+    this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
-      this.scan_read(val)
       this.changeDetectorRef.detectChanges()
+      switch(val) {
+        case "left": {
+          if(this.arrow_movement == true) {
+            this.open_pick(-1)
+            break
+          }
+        }
+
+        case "right": {
+          if(this.arrow_movement == true) {
+            this.open_pick(1)
+            break
+          }
+        }
+
+        case "down": {
+          if(this.arrow_movement == true) {
+            this.backToPickingList()
+            break
+          }
+        }
+
+        case "up": {
+          if(this.arrow_movement == true) {
+            this.backToPickingList()
+            break
+          }
+        }
+
+        default: {
+          this.scan_read(val)
+          break
+        }
+      }
+      
     })
-  
-    }
+  }
+
   constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, private sound: SoundsProvider, public formBuilder: FormBuilder, private stockInfo: StockProvider, public scanner: ScannerProvider, public alertCtrl: AlertController) {
     this.ScanReader = this.formBuilder.group({scan: ['']});
     this.cargar=true
@@ -60,6 +93,7 @@ export class PickingFormPage {
     this.max_index = this.navParams.data.picking_ids.length
     this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
     this.view_form = this.view_tree = true
+    this.arrow_movement = true
   }
 
   ionViewDidLoad() {
@@ -93,14 +127,16 @@ export class PickingFormPage {
     this.myScan.setFocus()
   }
 
-  open_pick(index: number = 0){
+  open_pick(index: number = 0) {
+    this.sound.play('nav')
     this.index = this.index + Number(index)
     if (this.index >= this.max_index){this.index=0}
     if (this.index < 0 ){this.index=this.max_index-1}
     this.cargar=true
-    this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
-    this.sound.play('nav')
+    let val = {'index': this.index, 'picking_ids': this.navParams.data.picking_ids}
+    this.navCtrl.setRoot(PickingFormPage, val)
   }
+
   check_state(){
     if (this.stock_picking_id['state'] == 'done'){
       // 'stock.move
@@ -115,7 +151,9 @@ export class PickingFormPage {
       }
 
   }
+
   get_picking_id(id){
+    console.log(id)
     var domain = [['id', '=', id]]
     this.stockInfo.get_stock_picking(domain, 'form').then((picks:Array<{}>)=> {  
 
@@ -195,5 +233,15 @@ export class PickingFormPage {
       })
       alert.present()
     }
+  }
+
+  backToPickingList() {
+    this.navCtrl.setRoot(PickingListPage)
+  }
+
+  toggle_scan_form() {
+    this.hide_scan_form = !this.hide_scan_form
+    this.arrow_movement = !this.arrow_movement
+    this.changeDetectorRef.detectChanges()
   }
 }

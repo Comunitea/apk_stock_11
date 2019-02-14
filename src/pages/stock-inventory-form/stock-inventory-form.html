@@ -39,7 +39,7 @@
         <button  *ngIf="type == 'list'" ion-button item-end (click)="open_pick(1)">
           >>
         </button>
-      </ion-item>
+    </ion-item>
   </div>
 
   <div *ngIf="inventory_movement_id">
@@ -55,14 +55,14 @@
           Cancelar
         </button>
       </ion-item>
-      <ion-item class="package-checker" *ngIf="!inventory_movement_id['package_id'] && !already_package && !new_package_done && inventory_movement_id['state'] != 'done' && inventory_movement_id['state'] != 'draft' && inventory_movement_id['lines_data']">
+      <!-- <ion-item class="package-checker" *ngIf="!inventory_movement_id['package_id'] && !already_package && !new_package_done && inventory_movement_id['state'] != 'done' && inventory_movement_id['state'] != 'draft' && inventory_movement_id['lines_data']">
         <ion-label><strong>Nuevo paquete:</strong></ion-label> 
         <ion-toggle item-end *ngIf="!new_package" checked="false" (ionChange)="save_new_package(true)"></ion-toggle>
         <ion-toggle item-end *ngIf="new_package" checked="true" (ionChange)="save_new_package(false)"></ion-toggle>
       </ion-item>
       <ion-item *ngIf="new_package_done">
         n<ion-label><strong>Nuevo paquete:</strong></ion-label> {{ new_package_name }}
-      </ion-item>
+      </ion-item> -->
     </div>  
     <div>
       <ion-grid>

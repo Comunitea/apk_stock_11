@@ -66,6 +66,20 @@ export class StockInventoryFormPage {
           }
         }
 
+        case "down": {
+          if(this.arrow_movement == true) {
+            this.backToInventoryPage()
+            break
+          }
+        }
+
+        case "up": {
+          if(this.arrow_movement == true) {
+            this.backToInventoryPage()
+            break
+          }
+        }
+
         default: {
           this.scan_read(val)
           break
@@ -249,7 +263,7 @@ export class StockInventoryFormPage {
   }
 
   inventory_validate(id) {
-    this.check_if_new_pkg()
+    /* this.check_if_new_pkg() */
     this.stockInfo.inventory_action_execute(id, 'action_done_apk').then((lines:Array<{}>) => {
       if(lines) {
         this.move_to_inventory(id)
@@ -273,12 +287,12 @@ export class StockInventoryFormPage {
     })
   }
 
-  save_new_package(value) {
+  /* save_new_package(value) {
     this.new_package = value
     this.changeDetectorRef.detectChanges()
-  }
+  } */
 
-  check_if_new_pkg() {
+  /* check_if_new_pkg() {
     if(this.new_package) {
       var name = 'PQT[' + this.inventory_movement_id['name'] + ']'
       this.new_package_name = name
@@ -287,7 +301,7 @@ export class StockInventoryFormPage {
         this.update_lines_data(lineas)
       })
     } 
-  }
+  } */
 
   update_lines_data(package_id) {
     this.stockInfo.get_lines_quants(this.inventory_movement_id['line_ids'], package_id).then((lines:Array<{}>) => {

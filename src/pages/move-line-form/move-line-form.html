@@ -46,7 +46,7 @@
   <div *ngIf="move_data">
     <ion-card>
       <ion-card-header>
-        Datos
+        Datos {{step}}
       </ion-card-header>
       <ion-card-content>
         <ion-list *ngIf="3 > step">
@@ -62,16 +62,34 @@
           <span *ngIf="!move_data['lot_id'] && !move_data['lot_name'] && move_data['product_barcode']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
             <strong>Código de barras:</strong> {{ move_data['product_barcode'] }}<br/>
           </span>
-          <span *ngIf="move_data['product_id'] && (step == 1 && !product_need_check)" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+          <span *ngIf="!move_data['lot_id'] && !move_data['lot_name'] && !move_data['product_barcode'] && move_data['default_code']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <strong>Código por defecto:</strong> {{ move_data['default_code'] }}<br/>
+          </span>
+          <span *ngIf="move_data['product_id'] && (step == 1 && !product_need_check) && move_data['product_barcode']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
             <a (click)="check_product_code(move_data['product_barcode'], 1)">
-              <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] }}<br/>
+              <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] || move_data['display_name'] }}<br/>
+            </a>
+          </span>
+          <span *ngIf="move_data['product_id'] && (step == 1 && !product_need_check) && !move_data['product_barcode']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <a (click)="check_product_code(move_data['default_code'], 1)">
+              <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] || move_data['display_name'] }}<br/>
             </a>
           </span>
           <span *ngIf="move_data['product_id'] && (step != 1 || product_need_check)" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
-            <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] }}<br/>
+            <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] || move_data['display_name'] }}<br/>
           </span>
-          <span *ngIf="move_data['product_qty']" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
-            <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
+          <span *ngIf="move_data['product_qty'] && move_data['product_barcode']  && step == 2" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
+            <a (click)="check_product_code(move_data['product_barcode'], 2)">
+              <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
+            </a>
+          </span>
+          <span *ngIf="move_data['product_qty'] && !move_data['product_barcode'] && step == 2" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
+            <a (click)="check_product_code(move_data['default_code'], 2)">
+              <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
+            </a>
+          </span>
+          <span *ngIf="move_data['product_qty'] && step != 2" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
+              <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
           </span>
         </ion-list>
         <ion-list *ngIf="step == 3 || step == 4">

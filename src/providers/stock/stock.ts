@@ -25,13 +25,13 @@ export class StockProvider {
     },
 
     'stock.move':{
-      'form': ['id', 'name', 'has_tracking', 'state', 'product_id', 'product_uom', 'scheduled_date', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty','result_package_id', 'display_name', 'need_check', 'need_dest_check'],
+      'form': ['id', 'name', 'has_tracking', 'state', 'product_id', 'product_uom', 'scheduled_date', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty','result_package_id', 'display_name', 'need_check', 'need_dest_check', 'inventory_id'],
       'tree': ['id', 'product_id', 'has_tracking', 'product_uom', 'picking_id', 'product_qty', 'product_uom_qty', 'state'],
       'inview': ['product_id', 'product_uom_qty', 'state'],
     },
 
     'stock.move.line':{
-      'form': ['id', 'move_id', 'state', 'product_id', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty', 'qty_done', 'result_package_id', 'display_name', 'barcode_dest', 'barcode', 'lot_name', 'ordered_qty', 'need_check', 'need_dest_check', 'original_location_short_name', 'final_location_short_name', 'product_short_name', 'product_barcode', 'product_need_check'],
+      'form': ['id', 'move_id', 'state', 'product_id', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty', 'qty_done', 'result_package_id', 'display_name', 'barcode_dest', 'barcode', 'lot_name', 'ordered_qty', 'need_check', 'need_dest_check', 'original_location_short_name', 'final_location_short_name', 'product_short_name', 'product_barcode', 'product_need_check', 'default_code'],
       'tree': ['id', 'product_id', 'move_id', 'lot_id', 'picking_id', 'product_qty', 'product_uom_qty', 'qty_done', 'state', 'ordered_qty'],
       'done': ['id', 'qty_done']
     },
@@ -52,7 +52,7 @@ export class StockProvider {
     },
 
     'stock.location': {
-      'form': ['id', 'complete_name', 'barcode', 'need_dest_check', 'name', 'location_id'],
+      'form': ['id', 'complete_name', 'barcode', 'need_dest_check', 'name', 'location_id', 'need_check'],
       'tree': ['need_dest_check'],
       'check': ['need_check']
     },
@@ -73,9 +73,13 @@ export class StockProvider {
     },
 
     'stock.inventory.line': {
-      'form': ['inventory_id', 'product_name', 'product_barcode', 'location_id', 'package_id', 'prod_lot_id', 'theoretical_qty', 'product_qty', 'original_location_short_name'],
+      'form': ['inventory_id', 'product_name', 'product_barcode', 'product_default_code', 'location_id', 'package_id', 'prod_lot_id', 'theoretical_qty', 'product_qty', 'original_location_short_name'],
       'tree': ['product_name', 'location_id', 'package_id', 'prodlot_name', 'theoretical_qty', 'product_qty', 'original_location_short_name'],
       'write': ['product_qty']
+    },
+
+    'stock.warehouse': {
+      'form': ['id', 'name', 'company_id']
     }
 
   }                            
@@ -209,7 +213,45 @@ export class StockProvider {
     });
     })
     return promise  
-  } 
+  }
+  
+  get_stock_move_simple(domain, type='tree', model='stock.move'){
+
+    var self = this
+    var fields = this.STOCK_FIELDS[model][type]
+    
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sm_ids:Array<{}>) => {
+        for (var sm_id in sm_ids){sm_ids[sm_id]['model'] = model}
+      resolve(sm_ids)
+
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise  
+  }
+
+  get_stock_move_lines_simple(domain, type='tree', model='stock.move.line'){
+
+    var self = this
+    var fields = this.STOCK_FIELDS[model][type]
+    
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sm_ids:Array<{}>) => {
+        for (var sm_id in sm_ids){sm_ids[sm_id]['model'] = model}
+      resolve(sm_ids)
+
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise  
+  }
 
   validate_picking(values){
     var self = this
@@ -330,7 +372,7 @@ export class StockProvider {
   get_product_by_barcode(val) {
     var self = this
     var val = val
-    var domain = [['barcode', '=', val]]
+    var domain = ['|', ['barcode', '=', val], ['default_code', '=', val]]
 
     var model = 'product.product'
     var fields = this.STOCK_FIELDS[model]['form']
@@ -729,6 +771,24 @@ export class StockProvider {
     return promise
   }
 
+  get_stock_move_list(domain, type='tree') {
+    var self = this
+    var model = 'stock.move'
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        console.log(err)
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
   get_possible_locations(warehouse, barcode, type='form') {
     var self = this
     var domain = [['id', 'child_of', warehouse], ['barcode', '=', barcode]]
@@ -834,6 +894,163 @@ export class StockProvider {
     model = 'stock.inventory.line'
     var promise = new Promise( (resolve, reject) => {
       self.odooCon.execute(model, 'get_quants_for_line_apk', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  // Home warehouse selection
+
+  get_available_warehouse_info(company_ids, type='form'){
+   
+    var self = this
+    var model = 'stock.warehouse'
+    var domain = [['company_id', 'in', company_ids]]
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+  // Stock movement
+
+  get_available_qty(location_id, product_id) {
+    var self = this
+    var model 
+    var values = {
+      'location_id': location_id,
+      'product_id': product_id
+    }
+     
+    model = 'stock.move'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'get_qty_available_before_creation', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+
+  create_stock_move(values){
+    var self = this
+    var model 
+
+    model = 'stock.move'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'create_from_pda', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  check_for_move_quants(values){
+    var self = this
+    var model 
+
+    model = 'stock.move'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'search_for_quants_apk', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  force_move_quants(values){
+    var self = this
+    var model 
+
+    model = 'stock.move'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'force_quants_for_apk', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  move_validation(values){
+    var self = this
+    var model 
+
+    model = 'stock.move'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'move_validation_from_apk', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  line_to_done(id){
+    var self = this
+    var model 
+    var values = {
+      'id': id
+    }
+
+    model = 'stock.move.line'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'set_as_pda_done_single_line', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  update_qty_lines(values){
+    var self = this
+    var model 
+
+    model = 'stock.move.line'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'update_line_values_apk', values).then((done) => {
        resolve(done)
       })
       .catch((err) => {

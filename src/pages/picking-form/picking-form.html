@@ -19,7 +19,7 @@
     <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
   </button>
     
-    <button ion-button icon-only item-end (click)="hide_scan_form = !hide_scan_form" color="primary">
+    <button ion-button icon-only item-end (click)="toggle_scan_form()" color="primary">
     <ion-icon name="barcode"></ion-icon>
   </button>
   </ion-buttons>
@@ -32,6 +32,9 @@
     <ion-item no-lines>
         <button padding ion-button item-start (click)="open_pick(-1)">
           Anterior
+        </button>
+        <button ion-button item-start (click)="backToPickingList()">
+          Volver
         </button>
 
         <button padding ion-button item-end (click)="open_pick(1)">
