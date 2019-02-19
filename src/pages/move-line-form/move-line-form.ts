@@ -68,6 +68,7 @@ export class MoveLineFormPage {
   new_location: any
   arrow_movement: boolean
   product_need_check: boolean
+  input_error: boolean
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -140,6 +141,7 @@ export class MoveLineFormPage {
     this.location_dest_error = false
     this.step = 0
     this.arrow_movement = true
+    this.input_error = false
   }
 
   ionViewDidLoad() {
@@ -184,6 +186,7 @@ export class MoveLineFormPage {
     this.qty_error = false
     this.location_dest_error = false
     this.product_need_check = false
+    this.input_error = false
     this.get_move_data(this.navParams.data.lines_ids[this.index_lines]['id'])
     this.sound.play('nav')
     this.changeDetectorRef.detectChanges();
@@ -583,6 +586,7 @@ export class MoveLineFormPage {
   }
 
   update_move_line() {
+    this.input_error = false
 
     /* En las entradas de mercancía no existe un lot_id pero tenemos que indicar igualmente el nombre del lote. */
     if(this.picking_type == 'incoming') {
@@ -599,6 +603,9 @@ export class MoveLineFormPage {
       } else {
         this.nextPickingFormLine(lines, this.move_data['product_qty'], next_line)
       }
+    }).catch((err) => {
+        console.log(err)
+        this.input_error = true
     });
   }
 

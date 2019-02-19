@@ -14,6 +14,7 @@ import { TextToSpeech } from '@ionic-native/text-to-speech';
 import { HomePage } from '../pages/home/home';
 import { PickingListPage } from '../pages/picking-list/picking-list';
 import { PickingFormPage } from '../pages/picking-form/picking-form';
+import { NewPickingFormPage } from '../pages/new-picking-form/new-picking-form';
 import { MoveFormPage } from '../pages/move-form/move-form'
 import { MoveLineFormPage } from '../pages/move-line-form/move-line-form'
 import { ProductListPage } from '../pages/product-list/product-list';
@@ -41,6 +42,7 @@ import { StockProvider } from '../providers/stock/stock';
     HomePage,
     PickingListPage,
     PickingFormPage,
+    NewPickingFormPage,
     MoveFormPage,
     MoveLineFormPage,
     ProductListPage,
@@ -76,6 +78,7 @@ import { StockProvider } from '../providers/stock/stock';
     HomePage,
     PickingListPage,
     PickingFormPage,
+    NewPickingFormPage,
     MoveFormPage,
     MoveLineFormPage,
     ProductListPage,

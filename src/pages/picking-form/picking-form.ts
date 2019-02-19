@@ -215,24 +215,33 @@ export class PickingFormPage {
   }
 
   validate_pick(stock_picking_id){
-    let resultado = this.stockInfo.validate_picking(stock_picking_id)
-    if (resultado['err'] == false) {
-      this.stockInfo.presentAlert('Error de validación', 'No se ha podido validar el albarán, revisa sus datos.')
-    } else {
-      let alert = this.alertCtrl.create({
-        title: 'Validación',
-        message: 'El albarán ha sido validado.',
-        buttons: [
-          {
-            text: 'OK',
-            handler: () => {
-              this.navCtrl.setRoot(PickingListPage)
+    this.stockInfo.validate_picking(stock_picking_id).then((resultado) => {
+      if (resultado) {
+        let alert = this.alertCtrl.create({
+          title: 'Validación',
+          message: 'El albarán ha sido validado.',
+          buttons: [
+            {
+              text: 'OK',
+              handler: () => {
+                this.navCtrl.setRoot(PickingListPage)
+              }
             }
-          }
-        ]
-      })
-      alert.present()
-    }
+          ]
+        })
+        alert.present()
+      } else {
+        this.stock_picking_id = []
+        this.stockInfo.presentAlert('Error de validación', 'No se ha podido validar el albarán, revisa sus datos.')
+        this.cargar=false
+        this.navCtrl.setRoot(PickingListPage)
+      }
+    }).catch((mierror) => {
+      this.stock_picking_id = []
+      this.stockInfo.presentAlert('Error de validación', 'No se ha podido validar el albarán, revisa sus datos.')
+      this.cargar=false
+      this.navCtrl.setRoot(PickingListPage)
+    })
   }
 
   backToPickingList() {
@@ -243,5 +252,14 @@ export class PickingFormPage {
     this.hide_scan_form = !this.hide_scan_form
     this.arrow_movement = !this.arrow_movement
     this.changeDetectorRef.detectChanges()
+  }
+
+  verificar_qty(line_id) {
+    this.stockInfo.line_to_done(line_id).then((resultado) => {
+      this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
+      this.changeDetectorRef.detectChanges()
+    }).catch((err) => {
+      console.log(err)
+    });
   }
 }

@@ -26,7 +26,7 @@ export class StockProvider {
 
     'stock.move':{
       'form': ['id', 'name', 'has_tracking', 'state', 'product_id', 'product_uom', 'scheduled_date', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty','result_package_id', 'display_name', 'need_check', 'need_dest_check', 'inventory_id'],
-      'tree': ['id', 'product_id', 'has_tracking', 'product_uom', 'picking_id', 'product_qty', 'product_uom_qty', 'state'],
+      'tree': ['id', 'product_id', 'has_tracking', 'product_uom', 'picking_id', 'product_qty', 'product_uom_qty', 'state', 'location_id', 'location_dest_id'],
       'inview': ['product_id', 'product_uom_qty', 'state'],
     },
 
@@ -223,8 +223,7 @@ export class StockProvider {
     var promise = new Promise( (resolve, reject) => {
       self.odooCon.search_read(model, domain, fields, 0, 0).then((sm_ids:Array<{}>) => {
         for (var sm_id in sm_ids){sm_ids[sm_id]['model'] = model}
-      resolve(sm_ids)
-
+        resolve(sm_ids)
       })
       .catch((err) => {
         reject(false)
@@ -267,9 +266,8 @@ export class StockProvider {
      
     model = 'stock.picking'
     var promise = new Promise( (resolve, reject) => {
-      console.log(valores)
       self.odooCon.execute(model, 'button_validate_from_pda', valores).then((done) => {
-       return done
+       resolve(done)
       })
       .catch((err) => {
         reject(false)
@@ -957,7 +955,7 @@ export class StockProvider {
 
     model = 'stock.move'
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.execute(model, 'create_from_pda', values).then((done) => {
+      self.odooCon.execute(model, 'create_for_picking', values).then((done) => {
        resolve(done)
       })
       .catch((err) => {
@@ -1056,6 +1054,109 @@ export class StockProvider {
       .catch((err) => {
         reject(false)
         console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  /* Picking create */ 
+
+  create_new_picking_from_moves(values){
+    var self = this
+    var model 
+
+    model = 'stock.move'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'create_new_picking_from_moves_apk', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  create_new_picking(values) {
+    var self = this
+    var model 
+
+    model = 'stock.picking'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'create', values).then((done) => {
+       resolve(done)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+    });
+    })
+    
+    return promise
+  }
+
+  get_picking_type_from_warehouse(warehouse_id) {
+    var self = this
+    var model = 'stock.picking.type'
+    var type = 'form'
+    var domain = [['warehouse_id', '=', warehouse_id], ['code', '=', 'internal']]
+    var fields = this.STOCK_FIELDS[model][type]
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+       for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
+       resolve(sp_ids)
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error buscando " + model)
+    });
+    })
+    return promise
+  }
+
+
+  update_dest(dest_id, model, id) {
+    var self = this
+    var id = id
+    var model = model
+    var valores = {
+      'location_dest_id': dest_id,
+    }
+    
+    var promise = new Promise( (resolve, reject) => {
+        self.odooCon.update_lines(model, 'write', valores, id).then((sp_ids) => {
+          resolve(sp_ids)
+        })
+        .catch((err) => {
+          reject(false)
+          console.log("Error al validar")
+      });
+      });
+    return promise
+  }
+
+  confirm_picking(values) {
+    var self = this
+    var model 
+
+    model = 'stock.picking'
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.execute(model, 'action_confirm', values).then((done) => {
+       if(done) {
+        self.odooCon.execute(model, 'action_assign', values).then((final_done) => {
+          resolve(final_done)
+        }).catch((err) => {
+          reject(err)
+          console.log("Error al assignar disponibilidad")
+      });
+       }
+      })
+      .catch((err) => {
+        reject(false)
+        console.log("Error al confirmar")
     });
     })
     

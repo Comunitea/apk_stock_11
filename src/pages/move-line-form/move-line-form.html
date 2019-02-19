@@ -46,7 +46,7 @@
   <div *ngIf="move_data">
     <ion-card>
       <ion-card-header>
-        Datos {{step}}
+        Datos
       </ion-card-header>
       <ion-card-content>
         <ion-list *ngIf="3 > step">
@@ -111,9 +111,12 @@
             </ion-item>
         </ion-list>
         <ion-list *ngIf="step >= 5">
-          <span>
+          <span *ngIf="!input_error">
             Actualizando datos.
           </span>
+          <span *ngIf="input_error" class="red-icon">
+              No se puede completar la operación, contacte con su administrador.
+            </span>
         </ion-list>
       </ion-card-content>
     </ion-card>

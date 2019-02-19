@@ -38,7 +38,30 @@
     </div>
 
   <div>
-      <ion-item text-end>
+
+    <!-- <ion-item text-end *ngIf="move_state_filter=='confirmed' && current_stock_moves.length > 0">
+        <ion-icon item-start class="green-icon" name="clipboard" md="md-clipboard"></ion-icon>
+        <ion-label color="odoo" (click)="filterLocationsForPickings()">Generar Albaranes</ion-label>
+      </ion-item>
+      <ion-item-options side="left">
+        <button ion-button color="odoo">
+          <ion-icon name="clipboard"></ion-icon>
+          Generar Albaranes
+        </button>
+      </ion-item-options> -->
+
+    <ion-item text-end>
+      <ion-icon item-start class="green-icon" name="clipboard" md="md-clipboard"></ion-icon>
+      <ion-label color="odoo" (click)="newPickingForm()">Nuevo Albarán</ion-label>
+    </ion-item>
+    <ion-item-options side="left">
+      <button ion-button color="odoo">
+        <ion-icon name="refresh"></ion-icon>
+        Nuevo
+      </button>
+    </ion-item-options>
+
+    <ion-item text-end>
       <ion-icon item-start class="blue-icon" name="add-circle" md="md-add-circle"></ion-icon>
       <ion-label color="odoo" (click)="newStockMovement()">Nuevo Movimiento</ion-label>
     </ion-item>
@@ -48,6 +71,7 @@
         Nuevo
       </button>
     </ion-item-options>
+    
     <ion-item-sliding *ngFor="let stock_moves of current_stock_moves">
       <ion-item text-end >
         <ion-icon name="calendar" item-start ></ion-icon>

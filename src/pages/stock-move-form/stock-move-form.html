@@ -92,18 +92,11 @@
                         {{ available_qty || 'Sin calcular' }} <br>
                     </span>
 
-                    <span *ngIf="available_qty && product_uom_qty && step == 3" [ngClass]="{'red-icon': qty_error, 'orange-icon': qty_confirm }">
+                    <span [ngClass]="{'red-icon': qty_error, 'green-icon': qty_confirm }">
                         <strong>
-                            Cantidad hecha/Cantidad demandada: 
+                           Cantidad demandada: 
                         </strong>
-                        {{ qty_done || 'Sin introducir' }} / <a *ngIf="product_uom_qty && step == 3" (click)="check_done_qty(product_uom_qty)">{{ product_uom_qty }}</a> <br>
-                    </span>
-
-                    <span *ngIf="available_qty && product_uom_qty && step != 3" [ngClass]="{'red-icon': qty_error, 'green-icon': qty_done }">
-                        <strong>
-                            Cantidad hecha/Cantidad demandada: 
-                        </strong>
-                        {{ qty_done || 'Sin introducir' }} / {{ product_uom_qty || 'Sin introducir' }} <br>
+                        {{ product_uom_qty || 'Sin introducir' }} <br>
                     </span>
 
                     <span [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_dest_data && !location_dest_confirm, 'orange-icon': location_dest_confirm }">
@@ -161,11 +154,19 @@
                         {{ stock_move_data['product_id'][1] }} <br/>
                     </span>
 
-                    <span *ngIf="stock_move_data['product_uom_qty']">
+                    <span *ngIf="stock_move_data['product_uom_qty'] && (stock_move_data['state'] == done || stock_move_data['confirmed'])">
                         <strong>
                             Demanda:
                         </strong>
                         {{ stock_move_data['product_uom_qty'] }} <br/>
+                    </span>
+
+                    <span *ngIf="stock_move_data['product_uom_qty'] && stock_move_data['state'] != done">
+                        <a (click)="verificar_all_lines_qty()">
+                            <strong>
+                                Demanda:
+                            </strong>
+                        {{ stock_move_data['product_uom_qty'] }}</a> <br/>
                     </span>
 
                     <span *ngIf="stock_move_data['date']">

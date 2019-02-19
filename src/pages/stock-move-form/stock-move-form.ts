@@ -181,6 +181,12 @@ export class StockMoveFormPage {
                 this.available_qty = avail_qty
                 this.changeDetectorRef.detectChanges()
               })
+              .catch((error) => {
+                this.product_error = true
+                this.product_data = false
+                this.step = 1
+                this.changeDetectorRef.detectChanges()
+              })
               this.changeDetectorRef.detectChanges()
             } else {
               this.product_error = true
@@ -193,21 +199,13 @@ export class StockMoveFormPage {
         case 2: {
 
           /* Pedimos la cantidad demandada */
-          this.check_uom_qty(val)
+          this.check_real_uom_qty(val)
           this.changeDetectorRef.detectChanges();
           break
 
         }
 
         case 3: {
-
-          this.check_done_qty(val)
-          this.changeDetectorRef.detectChanges();
-          break
-
-        }
-
-        case 4: {
 
           /* Comprobamos que la ubicación no sea la misma */
           if(this.check_vals(val, this.location_data['barcode'])) {
@@ -226,6 +224,7 @@ export class StockMoveFormPage {
                 } else {
                   this.step++
                   this.changeDetectorRef.detectChanges()
+                  this.create_move()
                 }
               } else {
                 this.location_dest_error = true
@@ -245,7 +244,7 @@ export class StockMoveFormPage {
             val2 = this.location_data['barcode']
           }
 
-          if(this.last_step == 4) {
+          if(this.last_step == 3) {
             val2 = this.location_dest_data['barcode']
           }
 
@@ -254,7 +253,9 @@ export class StockMoveFormPage {
             this.location_confirm = false
             this.location_dest_confirm = false
             this.changeDetectorRef.detectChanges()
-            this.create_move()
+            if(this.last_step == 3){
+              this.create_move()
+            }
           } else {
             this.step = this.last_step
             if(this.step == 0) {
@@ -262,7 +263,7 @@ export class StockMoveFormPage {
               this.location_error = true
               this.location_confirm = false
               this.changeDetectorRef.detectChanges()
-            } else if(this.step == 4) {
+            } else if(this.step == 3) {
               this.location_dest_data = false
               this.location_error = true
               this.location_dest_confirm = false
@@ -340,8 +341,6 @@ export class StockMoveFormPage {
         var subdomain = [['move_id', '=', lines[0]['id']]]
         this.stockInfo.get_stock_move_lines_simple(subdomain, 'tree', 'stock.move.line').then((lines:Array<{}>) => {
           this.move_line_ids = lines
-          console.log(this.stock_move_data)
-          console.log(this.move_line_ids)
           this.max_lines_to_change = this.move_line_ids.length -1
           this.changeDetectorRef.detectChanges();
         })
@@ -393,6 +392,17 @@ export class StockMoveFormPage {
     this.changeDetectorRef.detectChanges();
   }
 
+  check_real_uom_qty(val){
+    if(val <= this.available_qty) {
+      this.product_uom_qty = val
+      this.qty_confirm = true
+      this.step++
+      this.changeDetectorRef.detectChanges();
+    } else {
+      this.qty_error = true
+    }
+  }
+
   check_done_qty(val) {
     if(val <= this.available_qty) {
       if(this.check_vals(val, this.product_uom_qty)) {
@@ -411,8 +421,9 @@ export class StockMoveFormPage {
   }
 
   move_all_qty(val){
-    this.check_uom_qty(val)
-    this.check_done_qty(val)
+    /* this.check_uom_qty(val)
+    this.check_done_qty(val) */
+    this.check_real_uom_qty(val)
     this.changeDetectorRef.detectChanges();
   }
 
@@ -459,9 +470,11 @@ export class StockMoveFormPage {
       this.get_stock_move_data(this.stock_move_id)
       this.changeDetectorRef.detectChanges()
          
-    }).catch((err) => {
-      console.log(err)
-    });
+    }).catch((error) => {
+      this.stockInfo.presentAlert('Error de validación', 'No se ha podido validar el inventario, revisa sus datos.')
+      this.cargar=false
+      this.navCtrl.setRoot(StockMoveListPage)
+    })
   }
 
   toggle_scan_form() {
@@ -490,6 +503,14 @@ export class StockMoveFormPage {
     }).catch((err) => {
       console.log(err)
     });
+  }
+
+  verificar_all_lines_qty() {
+    this.move_line_ids.forEach(move_line => {
+      this.verificar_qty(move_line['id'])
+    });
+    this.get_stock_move_data(this.stock_move_id)
+    this.changeDetectorRef.detectChanges()
   }
 
 }

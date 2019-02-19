@@ -179,11 +179,20 @@ export class HomePage {
 
         this.available_warehouses.forEach(warehouse => {
 
-            alert.addInput({
-                type: 'radio',
-                label: warehouse['name'],
-                value: warehouse['company_id'][0]
-            })
+            if(warehouse['company_id'][0] == this.available_warehouses[0]['company_id'][0]) {
+                alert.addInput({
+                    type: 'radio',
+                    label: warehouse['name'],
+                    value: warehouse['company_id'][0],
+                    checked: true
+                })
+            } else {
+                alert.addInput({
+                    type: 'radio',
+                    label: warehouse['name'],
+                    value: warehouse['company_id'][0]
+                })
+            }
 
         });
 

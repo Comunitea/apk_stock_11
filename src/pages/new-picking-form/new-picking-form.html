@@ -1,0 +1,122 @@
+<!--
+  Generated template for the NewPickingFormPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{ 'Nuevo Albarán' }}</ion-title>
+  <ion-buttons end>
+  <button ion-button icon-only item-end (click)="lee_form()">
+    <ion-icon name="megaphone"></ion-icon>
+  </button>
+  <button ion-button icon-only item-end (click)="change_escuchando()">
+    <ion-icon *ngIf="escuchando" name="mic"></ion-icon>
+    <ion-icon *ngIf="!escuchando" name="mic-off"></ion-icon>
+  </button>
+    
+    <button ion-button icon-only item-end (click)="toggle_scan_form()" color="primary">
+    <ion-icon name="barcode"></ion-icon>
+  </button>
+  </ion-buttons>
+</ion-navbar>
+   
+</ion-header>
+
+<ion-content padding>
+  <div>
+    <ion-item no-lines>
+        <button ion-button item-start (click)="backToMoveList()">
+          Volver
+        </button>
+      </ion-item>
+  </div>
+  <div>
+    <div>
+      <ion-grid>
+
+        <ion-row *ngIf="location_data">
+          <ion-col text-end>
+          <ion-icon name="log-out"></ion-icon>
+            <span [ngClass]="{'red-icon': location_error, 'green-icon': location_data && !location_confirm, 'orange-icon': location_confirm }">Origen: {{ location_data['name'] || 'Sin introducir' }}</span>
+          </ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="!location_data">
+          <ion-col text-end>
+          <ion-icon name="log-out"></ion-icon>
+            Origen: {{ 'Sin introducir' }}
+          </ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="step >= 3 && location_dest_data">
+          <ion-col text-end>
+            <ion-icon name="log-in"></ion-icon>
+             <span [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_dest_data && !location_dest_confirm, 'orange-icon': location_dest_confirm }">Destino: {{ location_dest_data['name'] || 'Sin introducir' }}</span>
+          </ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="step >= 3 && !location_dest_data">
+            <ion-col text-end>
+              <ion-icon name="log-in"></ion-icon>
+               <span [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_dest_data && !location_dest_confirm, 'orange-icon': location_dest_confirm }">Sin introducir</span>
+            </ion-col>
+          </ion-row>
+
+      </ion-grid>
+    </div>
+  </div>
+
+  <div *ngIf="!product_data">
+    <span [ngClass]="{'red-icon': product_error, 'green-icon': product_data }">Producto:</span><br/>
+    <span>Sin introducir</span>
+  </div>
+
+  <div *ngIf="product_data">
+    <span [ngClass]="{'red-icon': product_error, 'green-icon': product_data }">Producto: {{ product_data['product_tmpl_name'] || 'Sin introducir' }}</span><br/>
+    <span><a (click)="check_real_uom_qty(available_qty)">Disponible: {{ available_qty }}</a></span>
+  </div>
+
+  <div *ngIf="move_data">
+    <div *ngIf="step > 3">
+      <strong>Añadir movimientos</strong> <ion-icon (click)="changeStep(1)" item-start class="blue" name="add-circle" md="md-add-circle"></ion-icon>
+    </div>
+    <div *ngIf="step > 0 && step != 3 && move_data.length > 0">
+      <strong>Introducir destino</strong> <ion-icon (click)="changeStep(3)" item-start class="blue" name="add-circle" md="md-add-circle"></ion-icon>
+    </div>
+    <div *ngIf="move_data">
+      <ion-grid *ngFor="let move of move_data">
+          <ion-row text-end>
+            <ion-col color='odoo' text-start>
+                  {{ move['name'] }}
+              </ion-col>
+            <ion-col text-end>
+              <ion-badge color="odoo">
+                {{ move['qty_done'] }}
+              </ion-badge>
+            </ion-col>
+            
+          </ion-row>
+    
+        </ion-grid>
+    </div>
+  </div>
+
+</ion-content>
+
+<ion-footer>
+    <form [formGroup]="ScanReader" class ="alignBottom" *ngIf="hide_scan_form">
+      <ion-item>
+        <ion-label color="primary" item-start>Scan: </ion-label>
+        <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
+        <button ion-button icon-only item-end clear (click)="submitScan(ScanReader.value)">
+          <ion-icon name="barcode"></ion-icon>
+        </button>
+      </ion-item>   
+    </form>
+  </ion-footer>
+

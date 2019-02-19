@@ -7,6 +7,8 @@ import { Storage } from '@ionic/storage';
 import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
 import { PickingFormPage } from '../picking-form/picking-form';
+import { NewPickingFormPage } from '../new-picking-form/new-picking-form';
+import { PickingListPage } from '../picking-list/picking-list';
 import { StockMoveFormPage } from '../stock-move-form/stock-move-form'
 
 
@@ -86,6 +88,65 @@ export class StockMoveListPage {
 
   newStockMovement() {
     this.navCtrl.setRoot(StockMoveFormPage)
+  }
+
+  newPickingForm() {
+    this.navCtrl.setRoot(NewPickingFormPage)
+  }
+
+  filterLocationsForPickings() {
+    var current_locations_for_picking = []
+    this.current_stock_moves.forEach(move => {
+      var dupla = [move['location_id'][0], move['location_dest_id'][0]]
+      var filtro = current_locations_for_picking.filter(element => element[0] === dupla[0] && element[1] === dupla[1])
+      if(filtro.length == 0) {
+        current_locations_for_picking.push(dupla)
+      }
+    });
+
+    var pickingList = this.createPickings(current_locations_for_picking)
+    this.open_picking_forms(pickingList)
+  }
+
+  createPickings(locations){
+    var pickingList = []
+    var moves_to_picking
+    var picking_type_id
+    this.stockInfo.get_picking_type_from_warehouse(this.default_warehouse).then((lineas:Array<{}>) => {
+      if(lineas) {
+        console.log(lineas)
+        var picking_type_id = lineas[0]['id']
+
+        locations.forEach(location => {
+          moves_to_picking = this.current_stock_moves.filter(x => x['location_id'][0] == location[0] && x['location_dest_id'][0] === location[1])
+          var values = {
+            'picking_type_id': picking_type_id,
+            'move_type': 'direct',
+            'location_id': location[0],
+            'location_dest_id': location[1],
+            'moves': moves_to_picking
+          }
+          this.stockInfo.create_new_picking_from_moves(values).then((result) => {
+            result = {
+              'id': result
+            }
+            pickingList.push(result)
+          }).catch((error) => {
+            console.log(error)
+          })
+          return pickingList  
+        }); 
+      } else {
+        return false
+      }
+    }).catch((mierror) => {
+      this.full_stock_moves = []
+      this.stockInfo.presentAlert('Error de conexión', 'No existe ningún tipo de operación de transferencia interna para este almacén.')
+    })
+  }
+
+  open_picking_forms(pickingList) {    
+    this.navCtrl.setRoot(PickingListPage)
   }
   
   open_pick(inventory_id: number = 0){
