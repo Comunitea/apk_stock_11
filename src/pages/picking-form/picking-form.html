@@ -93,7 +93,10 @@
         <ion-icon name="document"></ion-icon>
           {{ stock_picking_id['origin'] }}
         </ion-col>
-        <ion-col text-end>
+        <ion-col text-end *ngIf="stock_picking_id['state'] != done">
+          <a (click)="verificar_all_qty()">{{ stock_picking_id['move_done_count']}} de {{ stock_picking_id['move_count']}}</a>
+        </ion-col>
+        <ion-col text-end *ngIf="stock_picking_id['state'] == done">
           {{ stock_picking_id['move_done_count']}} de {{ stock_picking_id['move_count']}}
         </ion-col>
       </ion-row>

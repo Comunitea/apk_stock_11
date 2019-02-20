@@ -42,20 +42,6 @@
         </ion-item>
     </div>
 
-    <div *ngIf="!new_move_form && stock_move_data">
-        <ion-item no-lines>
-            <button *ngIf="stock_move_data['state'] == 'confirmed'" color='odoo' padding ion-button item-end (click)="search_quants_apk()">
-            Buscar
-            </button>
-            <button *ngIf="stock_move_data['state'] == 'confirmed'" color='odoo' padding ion-button item-end (click)="forced_quants_apk()">
-            Forzar
-            </button>
-            <button *ngIf="stock_move_data['state'] == 'assigned'" color='odoo' padding ion-button item-end (click)="validate_move_apk()">
-            Validar
-            </button>
-        </ion-item>
-    </div>
-
     <div *ngIf="new_move_form">
         <ion-card>
             <ion-card-header>
@@ -99,12 +85,6 @@
                         {{ product_uom_qty || 'Sin introducir' }} <br>
                     </span>
 
-                    <span [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_dest_data && !location_dest_confirm, 'orange-icon': location_dest_confirm }">
-                        <strong>
-                            Destino: 
-                        </strong>
-                        {{ location_dest_data['name'] || 'Sin introducir' }} <br>
-                    </span>
                 </ion-list>
                 <ion-list *ngIf="step > 4">
                     <span>Actualizando</span>
@@ -140,11 +120,11 @@
                         {{ stock_move_data['location_id'][1] }} <br/>
                     </span>
 
-                    <span *ngIf="stock_move_data['location_id']">
+                    <span *ngIf="location_dest_data['name']" [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_dest_data && !location_dest_confirm, 'orange-icon': location_dest_confirm }">
                         <strong>
-                            Destino:
+                            Destino: 
                         </strong>
-                        {{ stock_move_data['location_dest_id'][1] }} <br/>
+                        {{ location_dest_data['name'] || 'Sin introducir' }} <br>
                     </span>
 
                     <span *ngIf="stock_move_data['product_id']">

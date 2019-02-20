@@ -32,6 +32,7 @@ export class StockMoveListPage {
   move_state_filter: any
   move_status: any
   current_stock_moves: any
+  owner_id: any
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -49,29 +50,11 @@ export class StockMoveListPage {
         this.move_status = []
         this.move_status[0] = {
           'id': 0,
-          'code': 'waiting',
-          'name': 'En espera',
-          'index': 0
-        }
-        this.move_status[1] = {
-          'id': 1,
-          'code': 'confirmed',
-          'name': 'Confirmado',
-          'index': 1
-        }
-        this.move_status[2] = {
-          'id': 2,
-          'code': 'partially_available',
-          'name': 'Parcial',
-          'index': 2
-        }
-        this.move_status[3] = {
-          'id': 3,
           'code': 'assigned',
           'name': 'Reservado',
-          'index': 3
+          'index': 0
         }
-        this.get_selected_warehouse()
+        this.get_owner_id()
   }
   
   ionViewDidLoad() {
@@ -115,7 +98,7 @@ export class StockMoveListPage {
     this.stockInfo.get_picking_type_from_warehouse(this.default_warehouse).then((lineas:Array<{}>) => {
       if(lineas) {
         console.log(lineas)
-        var picking_type_id = lineas[0]['id']
+        picking_type_id = lineas[0]['id']
 
         locations.forEach(location => {
           moves_to_picking = this.current_stock_moves.filter(x => x['location_id'][0] == location[0] && x['location_dest_id'][0] === location[1])
@@ -130,10 +113,11 @@ export class StockMoveListPage {
             result = {
               'id': result
             }
+            this.move_lines_to_real_dest_location(result, location[1])
             pickingList.push(result)
           }).catch((error) => {
             console.log(error)
-          })
+          })   
           return pickingList  
         }); 
       } else {
@@ -146,7 +130,27 @@ export class StockMoveListPage {
   }
 
   open_picking_forms(pickingList) {    
-    this.navCtrl.setRoot(PickingListPage)
+    //this.navCtrl.setRoot(PickingListPage)
+    this.sound.play('nav')
+    let val = {'index': 0, 'picking_ids': pickingList}
+    this.navCtrl.setRoot(PickingFormPage, val)
+  }
+
+  move_lines_to_real_dest_location(picking_id, location_id) {
+    var domain = [['picking_id', '=', picking_id['id']]]
+    this.stockInfo.get_stock_move_lines_simple(domain, 'tree', 'stock.move.line').then((lines:Array<{}>) => {
+      console.log(lines)
+      lines.forEach(line => {
+        this.stockInfo.new_location_dest(location_id, undefined, line['id']).then((done) => {
+          console.log(done)
+        }).catch((error) => {
+          console.log(error)
+        })
+      })
+    })
+    .catch((error) => {
+      console.log(error)
+    })
   }
   
   open_pick(inventory_id: number = 0){
@@ -172,12 +176,19 @@ export class StockMoveListPage {
     })
   }
 
+  get_owner_id(){
+    this.storage.get('USER').then((val) => {
+      this.owner_id = val
+      this.get_selected_warehouse()
+    })
+  }
+
   get_move_domain(){
     var domain = []
     if (this.move_state_filter != 0 && this.move_state_filter != undefined){
-      domain = [['state', '=', this.move_state_filter]]
+      domain = [['state', '=', this.move_state_filter], ['create_uid', '=', this.owner_id[0]['id']]]
     } else {
-      domain = [['state', 'in', ['waiting', 'confirmed', 'partially_available', 'assigned']]]
+      domain = [['state', 'in', ['assigned']], ['create_uid', '=', this.owner_id[0]['id']]]
     }
    return domain
   }

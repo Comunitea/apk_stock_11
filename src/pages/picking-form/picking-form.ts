@@ -262,4 +262,17 @@ export class PickingFormPage {
       console.log(err)
     });
   }
+
+  verificar_all_qty() {
+    this.stock_picking_id['moves_lines_ids'].forEach(line => {
+      this.stockInfo.line_to_done(line['id']).then((resultado) => {
+        console.log(resultado)
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+    });
+    this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
+    this.changeDetectorRef.detectChanges()
+  }
 }

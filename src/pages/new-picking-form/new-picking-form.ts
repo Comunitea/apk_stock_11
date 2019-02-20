@@ -251,13 +251,30 @@ export class NewPickingFormPage {
     }
   }
 
+  move_lines_to_real_dest_location() {
+    var domain = [['picking_id', '=', this.picking_id]]
+    this.stockInfo.get_stock_move_lines_simple(domain, 'tree', 'stock.move.line').then((lines:Array<{}>) => {
+      console.log(lines)
+      lines.forEach(line => {
+        this.stockInfo.new_location_dest(this.location_dest_data['id'], this.location_dest_data['barcode'], line['id']).then((done) => {
+          console.log(done)
+        }).catch((error) => {
+          console.log(error)
+        })
+      })
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+    this.open_picking_form()
+  }
+
   update_picking(location_dest_id){
     this.stockInfo.update_dest(location_dest_id, 'stock.picking', this.picking_id).then((result)=> {
       if(result) {
         this.stockInfo.confirm_picking(this.picking_id).then((confirm_result) => {
-          console.log(confirm_result)
           if(confirm_result) {
-            this.open_picking_form()
+            this.move_lines_to_real_dest_location()
           }
         }).catch((error) => {
           console.log(error)

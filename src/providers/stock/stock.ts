@@ -481,7 +481,7 @@ export class StockProvider {
     return promise
   }
 
-  new_location_dest(id, barcode, move_id) {
+  new_location_dest(id, barcode=undefined, move_id) {
     var self = this
     var id = id
     var barcode = barcode
@@ -949,13 +949,20 @@ export class StockProvider {
   }
 
 
-  create_stock_move(values){
+  create_stock_move(values, type=1){
     var self = this
-    var model 
+    var model
+    var type = type
+    var consult
+    if(type == 1){
+      consult = 'create_for_picking'
+    } else {
+      consult = 'create_from_pda'
+    }
 
     model = 'stock.move'
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.execute(model, 'create_for_picking', values).then((done) => {
+      self.odooCon.execute(model, consult , values).then((done) => {
        resolve(done)
       })
       .catch((err) => {
