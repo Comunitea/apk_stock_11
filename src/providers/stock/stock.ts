@@ -25,14 +25,14 @@ export class StockProvider {
     },
 
     'stock.move':{
-      'form': ['id', 'name', 'has_tracking', 'state', 'product_id', 'product_uom', 'scheduled_date', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty','result_package_id', 'display_name', 'need_check', 'need_dest_check', 'inventory_id'],
+      'form': ['id', 'name', 'has_tracking', 'state', 'product_id', 'product_uom', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'product_qty', 'display_name', 'need_check', 'need_dest_check', 'inventory_id'],
       'tree': ['id', 'product_id', 'has_tracking', 'product_uom', 'picking_id', 'product_qty', 'product_uom_qty', 'state', 'location_id', 'location_dest_id'],
       'inview': ['product_id', 'product_uom_qty', 'state'],
     },
 
     'stock.move.line':{
       'form': ['id', 'move_id', 'state', 'product_id', 'picking_id', 'location_id', 'location_dest_id', 'product_uom_qty', 'lot_id', 'package_id', 'product_qty', 'qty_done', 'result_package_id', 'display_name', 'barcode_dest', 'barcode', 'lot_name', 'ordered_qty', 'need_check', 'need_dest_check', 'original_location_short_name', 'final_location_short_name', 'product_short_name', 'product_barcode', 'product_need_check', 'default_code'],
-      'tree': ['id', 'product_id', 'move_id', 'lot_id', 'picking_id', 'product_qty', 'product_uom_qty', 'qty_done', 'state', 'ordered_qty'],
+      'tree': ['id', 'product_id', 'move_id', 'lot_id', 'picking_id', 'product_qty', 'product_uom_qty', 'qty_done', 'state', 'ordered_qty', 'lot_name', 'package_id', 'product_barcode', 'default_code'],
       'done': ['id', 'qty_done']
     },
 

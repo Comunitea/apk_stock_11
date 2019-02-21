@@ -159,7 +159,7 @@
 
                 <ion-row *ngFor="let move_line of move_line_ids">
                     <ion-col *ngIf="move_line['lot_id'] && stock_move_data['state'] != done && move_line['state'] != done">
-                        <a (click)="verificar_qty(move_line['id'])" >LOT:  {{move_line['lot_id'][1]}}</a>
+                        <a (click)="verificar_qty(move_line['id'], 2)" >LOT:  {{move_line['lot_id'][1]}}</a>
                     </ion-col>
                     <ion-col *ngIf="move_line['lot_id'] && (stock_move_data['state'] == done || move_line['state'] == done)">
                         LOT:  {{move_line['lot_id'][1]}}

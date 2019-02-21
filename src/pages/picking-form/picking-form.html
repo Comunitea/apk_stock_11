@@ -100,6 +100,11 @@
           {{ stock_picking_id['move_done_count']}} de {{ stock_picking_id['move_count']}}
         </ion-col>
       </ion-row>
+      <ion-row>
+        <ion-col text-end *ngIf="stock_picking_id['state'] != done">
+          <a (click)="all_qty_done_to_zero()">Cantidades a 0</a>
+        </ion-col>
+        </ion-row>
     </ion-grid>
   </div>
 
@@ -156,7 +161,7 @@
     <ion-item>
       <ion-label color="primary" item-start>Scan: </ion-label>
       <ion-input #scan [formControl]="ScanReader.controls['scan']" type="text" name="scan" placeholder = "Scan" ></ion-input>
-      <button ion-button icon-only item-end clear (click)="submitScan()">
+      <button ion-button icon-only item-end clear (click)="submitScan(ScanReader.value)">
         <ion-icon name="barcode"></ion-icon>
       </button>
     </ion-item>   

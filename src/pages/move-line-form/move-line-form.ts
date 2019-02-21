@@ -69,6 +69,7 @@ export class MoveLineFormPage {
   arrow_movement: boolean
   product_need_check: boolean
   input_error: boolean
+  confirmation_code: any
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -124,6 +125,7 @@ export class MoveLineFormPage {
     this.index_lines = this.navParams.data.index_lines
     this.lines_ids = this.navParams.data.lines_ids
     this.max_ids = this.navParams.data.lines_ids.length
+    this.confirmation_code = this.navParams.data.confirmation_code
     this.location_barcode = false
     this.product_barcode = false
     this.product_need_check = false
@@ -187,6 +189,7 @@ export class MoveLineFormPage {
     this.location_dest_error = false
     this.product_need_check = false
     this.input_error = false
+    this.confirmation_code = false
     this.get_move_data(this.navParams.data.lines_ids[this.index_lines]['id'])
     this.sound.play('nav')
     this.changeDetectorRef.detectChanges();
@@ -243,7 +246,20 @@ export class MoveLineFormPage {
         this.changeDetectorRef.detectChanges();
       }
 
+      if(this.move_data['qty_done'] > 0 && this.location_barcode == true){
+        this.step = 4
+        this.changeDetectorRef.detectChanges();
+      } else if (this.move_data['qty_done'] > 0) {
+        this.step = 3
+        this.changeDetectorRef.detectChanges();
+      }
+
       this.check_on_start()
+      var cont = 0
+      this.navParams.data.lines_ids.forEach(x => {
+        x.index = cont
+        cont++
+      })
 
     })
     .catch((mierror) => {
@@ -268,6 +284,10 @@ export class MoveLineFormPage {
       case 0: {
         this.location_error = false
         this.pkg_error = false
+
+        /* Primero comprobamos si lo que se ha introducido coincide con algún lote/paquete/producto de nuestra lista
+        que no sea el movimiento actual */
+        this.check_if_code_is_in_line_ids(val)
 
         /* Si se ha introducido un nuevo origen: */
         if(this.new_origin_location_id) {
@@ -328,6 +348,13 @@ export class MoveLineFormPage {
 
       case 1: {
         this.product_error = false
+
+        /* En caso de que el campo need_check del origen no esté marcado buscamos el producto en el listado */
+        
+        if(!this.move_data['need_check']) {
+          this.check_if_code_is_in_line_ids(val)
+        }
+
         this.check_product_code(val, 1)
         break;
       }
@@ -393,12 +420,35 @@ export class MoveLineFormPage {
     }
   }
 
+  check_if_code_is_in_line_ids(val) {
+    var filtered_lines = this.navParams.data.lines_ids.filter(x => (val.includes(x.lot_it) || val.includes(x.lot_name)
+     || val.includes(x.package_id) || val.includes(x.default_code) || val.includes(x.product_barcode)) && x.id != this.id)
+
+    if(filtered_lines.length>0) {
+      let data = {'model': this.model, 'id': filtered_lines[0]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': filtered_lines[0]['index'],
+     'lines_ids': this.lines_ids, 'picking_type': this.navParams.data.picking_type, 'confirmation_code': val}
+      this.navCtrl.setRoot(MoveLineFormPage, data)
+    }
+     
+  }
+
   check_on_start() {
     /* Si no es un paquete y no requiere check entonces pasa al siguiente paso. */
     if(this.step == 0 && !this.package_origin && this.original_location_barcode) {
       this.step = 1
       this.changeDetectorRef.detectChanges()
     }
+    
+    /* Si venimos de leer un código en otro movimiento o desde el albarán, nos situamos en el paso correcto y leemos ese código. */
+    if(this.confirmation_code) {
+      this.scan_read(this.confirmation_code)
+      this.changeDetectorRef.detectChanges()
+    }
+  }
+
+  manual_confirm() {
+    this.step = 5
+    this.input_confirm()
   }
 
   check_product_code(val, step) {
@@ -578,7 +628,9 @@ export class MoveLineFormPage {
           '1': name 
         }
         this.update_move_line()
-      })
+      }).catch((err) => {
+        console.log(err)
+    });
     } else {
       this.update_move_line()
     }
@@ -639,7 +691,7 @@ export class MoveLineFormPage {
     /* Pasamos a la siguiente línea del formulario. */
     var next_line = next_line
     if(promiseDone) {
-      let val = {'model': this.model, 'id': this.navParams.data.lines_ids[next_line]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': next_line, 'lines_ids': this.lines_ids, 'picking_type': this.navParams.data.picking_type}
+      let val = {'model': this.model, 'id': this.navParams.data.lines_ids[next_line]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': next_line, 'lines_ids': this.lines_ids, 'picking_type': this.navParams.data.picking_type, 'confirmation_code': false}
       this.navCtrl.setRoot(MoveLineFormPage, val)
       this.changeDetectorRef.detectChanges()
     } else {
@@ -654,6 +706,37 @@ export class MoveLineFormPage {
     let index_mapa = {'warehouse_id': warehouse_id, 'model': this.model, 'id': this.navParams.data.lines_ids[next_line]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': next_line, 'lines_ids': this.lines_ids, 'picking_type': this.navParams.data.picking_type}
 
     this.navCtrl.setRoot(WarehouseFormPage, index_mapa)
+  }
+
+  qty_done_to_zero(){
+    var line_to_update = []
+    line_to_update.push({
+      'id': this.id,
+      'qty_done': 0
+    })
+    this.stockInfo.update_qty_lines(line_to_update).then((value) => {
+      this.open_line(0)
+      this.changeDetectorRef.detectChanges()
+    }).catch((err) => {
+      console.log(err)
+    });
+  }
+
+  previous_step() {
+    this.step = this.step -1    
+    if(this.step == 0) {
+      this.open_line(0)
+    } else if(this.step == 1) {
+      this.product_barcode = false
+      this.product_qty_confirmed = false
+    } else if(this.step == 2) {
+      this.product_qty_confirmed = false
+      this.new_product_qt = false
+    } else if(this.step == 3) {
+      this.location_barcode = false
+      this.change_location = false
+    }
+    this.changeDetectorRef.detectChanges()
   }
 
 }

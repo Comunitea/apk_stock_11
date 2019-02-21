@@ -35,7 +35,13 @@
         <<
       </button>
       <button ion-button item-start (click)="backToPickingForm(true, 0)">
-          Volver
+        Volver
+      </button>
+      <button ion-button item-end (click)="qty_done_to_zero()">
+        <ion-icon name="refresh"></ion-icon>
+      </button>
+      <button ion-button item-end (click)="previous_step()">
+        <ion-icon name="undo"></ion-icon>
       </button>
       <button ion-button item-end (click)="open_line(1)">
         >>
@@ -46,10 +52,11 @@
   <div *ngIf="move_data">
     <ion-card>
       <ion-card-header>
-        Datos
+        
       </ion-card-header>
       <ion-card-content>
-        <ion-list *ngIf="3 > step">
+        <!-- Para ocultar la primera lista basta con ponerle que sólo se muestre para valores de step menores a tres: *ngIf="3 > step"  -->
+        <ion-list>
           <span *ngIf="move_data['package_id']" [ngClass]="{'red-icon': pkg_error, 'green-icon': package_origin_confirm}">
               <strong>Paquete:</strong> {{ move_data['package_id'][1] }}<br/>
             </span>
@@ -99,14 +106,19 @@
             <span *ngIf="move_data['result_package_id']">
               <strong>Paquete Destino:</strong> {{ move_data['result_package_id'][1] }}<br/>
             </span>
-            <ion-item class="package-checker" *ngIf="!move_data['result_package_id']">
+            <!-- <ion-item class="package-checker" *ngIf="!move_data['result_package_id']">
                 <ion-label><strong>Nuevo paquete:</strong></ion-label> 
                 <ion-toggle item-end *ngIf="!new_package" checked="false" (ionChange)="save_new_package(true)"></ion-toggle>
                 <ion-toggle item-end *ngIf="new_package" checked="true" (ionChange)="save_new_package(false)"></ion-toggle>
-            </ion-item>
+            </ion-item> -->
             <ion-item *ngIf="step == 4">
-              <span>
+              <span item-start>
                 Repita la última lectura para confirmar.
+              </span>
+              <span item-end>
+                <button ion-button item-start (click)="manual_confirm()">
+                  Ok
+                </button>
               </span>
             </ion-item>
         </ion-list>

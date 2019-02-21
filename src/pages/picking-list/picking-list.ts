@@ -90,7 +90,7 @@ export class PickingListPage {
     if (this.picking_type_filter != 0){
       domain = [['picking_type_id', '=', this.picking_type_filter]]
     }
-    domain.push(['state','not in', ['cancel','done']])
+    domain.push(['state','not in', ['cancel','done', 'draft', 'confirmed']])
    return domain
   }
   

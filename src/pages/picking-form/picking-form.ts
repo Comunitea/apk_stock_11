@@ -105,26 +105,15 @@ export class PickingFormPage {
   }
 
   scan_read(val){
-    //this.stockInfo.check_barcode_or_lot(val, this.stock_picking_id['id'])
+    this.check_if_code_is_in_line_ids(val)
   }
   
-  submitScan(scan=false){
-    if (!scan){
-      scan = this.ScanReader.value['scan']
+  submitScan(value: any):void {
+    /* El submit para las pruebas sin pistola. */
+    if(value.scan) {
+      this.scan_read(value.scan)
     }
-    
-    
-    //SI NO RECIBO NADA, ESCUCHO
-    if (!scan){
-      this.sound.startListening()
-    }
-    
-    //SI RECIBO ALGO MIRO A VER SI ES ALGO DEL MOVIMIENTO
-    if (!this.check_scan(scan)){
-      this.sound.recon_voice(scan)
-    }
- 
-    this.myScan.setFocus()
+    this.changeDetectorRef.detectChanges()
   }
 
   open_pick(index: number = 0) {
@@ -171,6 +160,13 @@ export class PickingFormPage {
           
           this.stock_picking_id['moves'] = moves
           this.stock_picking_id['moves_lines_ids'] = this.stock_picking_id['moves']
+          
+          var cont = 0
+          this.stock_picking_id['moves_lines_ids'].forEach(x => {
+            x.index = cont
+            cont++
+          })
+
           this.check_state()
           this.cargar=false
           this.changeDetectorRef.detectChanges()
@@ -190,6 +186,18 @@ export class PickingFormPage {
       this.cargar=false
     })
     return
+  }
+
+  check_if_code_is_in_line_ids(val) {
+    var filtered_lines = this.stock_picking_id['moves_lines_ids'].filter(x => val.includes(x.lot_it) || val.includes(x.lot_name)
+     || val.includes(x.package_id) || val.includes(x.default_code) || val.includes(x.product_barcode))
+
+    if(filtered_lines.length>0) {
+      let data = {'model': 'stock.move.line', 'id': filtered_lines[0]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': filtered_lines[0]['index'],
+     'lines_ids': this.stock_picking_id['moves_lines_ids'], 'picking_type': this.stock_picking_id['picking_type_id'][2], 'confirmation_code': val}
+      this.navCtrl.setRoot(MoveLineFormPage, data)
+    }
+     
   }
 
   open_form_move (model, id){
@@ -254,9 +262,11 @@ export class PickingFormPage {
     this.changeDetectorRef.detectChanges()
   }
 
-  verificar_qty(line_id) {
+  verificar_qty(line_id, update=1) {
     this.stockInfo.line_to_done(line_id).then((resultado) => {
-      this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
+      if(update==1){
+        this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
+      }
       this.changeDetectorRef.detectChanges()
     }).catch((err) => {
       console.log(err)
@@ -265,14 +275,28 @@ export class PickingFormPage {
 
   verificar_all_qty() {
     this.stock_picking_id['moves_lines_ids'].forEach(line => {
-      this.stockInfo.line_to_done(line['id']).then((resultado) => {
-        console.log(resultado)
-      })
-      .catch((err) => {
-        console.log(err)
-      });
+      this.verificar_qty(line['id'], 0)
     });
     this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
     this.changeDetectorRef.detectChanges()
+  }
+
+  all_qty_done_to_zero() {
+    var lines_to_update = []
+    this.stock_picking_id['moves_lines_ids'].forEach(linea => {
+      if(linea['qty_done'] != 0){
+        lines_to_update.push({
+          'id': linea['id'],
+          'qty_done': 0
+        })
+      }
+    })
+    
+    this.stockInfo.update_qty_lines(lines_to_update).then((value) => {
+      this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
+      this.changeDetectorRef.detectChanges()
+    }).catch((err) => {
+      console.log(err)
+    });
   }
 }

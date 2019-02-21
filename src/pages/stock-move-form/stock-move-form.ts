@@ -344,7 +344,6 @@ export class StockMoveFormPage {
             this.step = this.last_step+1
             this.location_dest_confirm = false
             this.changeDetectorRef.detectChanges()
-            this.verificar_all_lines_qty()
             this.update_move()
           } else {
             this.step = this.last_step
@@ -364,18 +363,22 @@ export class StockMoveFormPage {
   }
 
   set_real_location_dest_to_lines() {
-    this.move_line_ids.forEach(line => {
-      this.stockInfo.new_location_dest(this.location_dest_data['id'], this.location_dest_data['barcode'], line['id']).then((done) => {
-        console.log(done)
-        if(this.move_line_ids[this.move_line_ids.length-1]['id'] == line['id']) {
-          this.validate_move_apk()
-        }
-      }).catch((error) => {
-        this.stockInfo.presentAlert('Error', 'No se ha podido el destino de las líneas, revisa sus datos.')
-        this.cargar=false
-        this.navCtrl.setRoot(StockMoveListPage)
-      })
-    });
+    /* this.move_line_ids.forEach(line => { */
+    var lineas_ids = []
+    this.move_line_ids.forEach(linea => {
+      lineas_ids.push(linea['id'])
+    })
+    this.stockInfo.new_location_dest(this.location_dest_data['id'], this.location_dest_data['barcode'], lineas_ids).then((done) => {
+      if(done) {
+        this.validate_move_apk()
+      }
+    }).catch((error) => {
+      console.log(error)
+      this.stockInfo.presentAlert('Error', 'No se ha podido modificar el destino de las líneas, revisa sus datos.')
+      this.cargar=false
+      this.navCtrl.setRoot(StockMoveListPage)
+    })
+    /* }); */
   }
 
   update_move() {
@@ -385,6 +388,7 @@ export class StockMoveFormPage {
         this.set_real_location_dest_to_lines()
       }
     }).catch((err) => {
+      console.log(err)
       this.stockInfo.presentAlert('Error', 'No se ha podido modificar el destino del movimiento, revisa sus datos.')
       this.cargar=false
       this.navCtrl.setRoot(StockMoveListPage)
@@ -411,7 +415,6 @@ export class StockMoveFormPage {
     var domain = [['id', '=', id]]
     this.stockInfo.get_stock_move_simple(domain, 'form', 'stock.move').then((lines:Array<{}>)=> {
         this.stock_move_data = lines[0]
-        console.log(this.stock_move_data)
         var subdomain = [['move_id', '=', lines[0]['id']]]
         this.stockInfo.get_stock_move_lines_simple(subdomain, 'tree', 'stock.move.line').then((lines:Array<{}>) => {
           this.move_line_ids = lines
@@ -583,9 +586,14 @@ export class StockMoveFormPage {
     this.get_stock_move_data(this.navParams.data.moves_ids[Number(this.move_index)]['id'])
   }
 
-  verificar_qty(line_id) {
+  verificar_qty(line_id, update=1) {
     this.stockInfo.line_to_done(line_id).then((resultado) => {
-      this.get_stock_move_data(this.stock_move_id)
+      if(update==1 || update ==2){
+        this.get_stock_move_data(this.stock_move_id)
+        if (update==2) {
+          this.step = 1
+        }
+      }
       this.changeDetectorRef.detectChanges()
     }).catch((err) => {
       console.log(err)
@@ -594,7 +602,7 @@ export class StockMoveFormPage {
 
   verificar_all_lines_qty() {
     this.move_line_ids.forEach(move_line => {
-      this.verificar_qty(move_line['id'])
+      this.verificar_qty(move_line['id'], 0)
     });
     this.get_stock_move_data(this.stock_move_id)
     this.changeDetectorRef.detectChanges()
