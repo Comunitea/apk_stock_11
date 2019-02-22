@@ -248,8 +248,12 @@ export class MoveLineFormPage {
 
       if(this.move_data['qty_done'] > 0 && this.location_barcode == true){
         this.step = 4
+        this.product_barcode = true
+        this.product_qty_confirmed = true
         this.changeDetectorRef.detectChanges();
       } else if (this.move_data['qty_done'] > 0) {
+        this.product_barcode = true
+        this.product_qty_confirmed = true
         this.step = 3
         this.changeDetectorRef.detectChanges();
       }
@@ -272,6 +276,8 @@ export class MoveLineFormPage {
   }
 
   scan_read(val){
+    console.log(val)
+    console.log(this.step)
     if (this.last_read==val){
       this.repeat_read = true
     }
@@ -287,7 +293,9 @@ export class MoveLineFormPage {
 
         /* Primero comprobamos si lo que se ha introducido coincide con algún lote/paquete/producto de nuestra lista
         que no sea el movimiento actual */
-        this.check_if_code_is_in_line_ids(val)
+        if(this.move_data['package_id'][0] != val) {
+          this.check_if_code_is_in_line_ids(val)
+        }
 
         /* Si se ha introducido un nuevo origen: */
         if(this.new_origin_location_id) {
@@ -320,6 +328,7 @@ export class MoveLineFormPage {
           /* Si existe un paquete y se ha iniciado el proceso de confirmación comprobamos si valor es el nombre del paquete */
           if (val == this.move_data['package_id'][1]) {
             /* Enviamos el proceso al paso 3, ya que el paquete verifica el origen, lote y cantidad */
+            this.package_origin_confirm = true
             this.original_location_barcode = true
             this.product_barcode == true
             this.move_data['qty_done'] = this.move_data['product_qty']
@@ -328,6 +337,7 @@ export class MoveLineFormPage {
             } else {
               this.step = 3
             }
+            this.changeDetectorRef.detectChanges();
           } else {
             this.pkg_error = true
           }
@@ -421,8 +431,8 @@ export class MoveLineFormPage {
   }
 
   check_if_code_is_in_line_ids(val) {
-    var filtered_lines = this.navParams.data.lines_ids.filter(x => (val.includes(x.lot_it) || val.includes(x.lot_name)
-     || val.includes(x.package_id) || val.includes(x.default_code) || val.includes(x.product_barcode)) && x.id != this.id)
+    var filtered_lines = this.navParams.data.lines_ids.filter(x => (val.includes(x.lot_id[1]) || val.includes(x.lot_name)
+     || val.includes(x.package_id[1]) || val.includes(x.default_code) || val.includes(x.product_barcode)) && x.id != this.id)
 
     if(filtered_lines.length>0) {
       let data = {'model': this.model, 'id': filtered_lines[0]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': filtered_lines[0]['index'],
@@ -733,6 +743,12 @@ export class MoveLineFormPage {
       this.product_qty_confirmed = false
       this.new_product_qt = false
     } else if(this.step == 3) {
+      /* if(this.picking_type == 'outgoing' || !this.move_data['need_dest_check']) {
+        this.location_barcode = true
+        this.step = 4
+      } else {
+        this.location_barcode = false
+      }  */
       this.location_barcode = false
       this.change_location = false
     }

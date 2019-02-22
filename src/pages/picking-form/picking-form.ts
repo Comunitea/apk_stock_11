@@ -189,8 +189,8 @@ export class PickingFormPage {
   }
 
   check_if_code_is_in_line_ids(val) {
-    var filtered_lines = this.stock_picking_id['moves_lines_ids'].filter(x => val.includes(x.lot_it) || val.includes(x.lot_name)
-     || val.includes(x.package_id) || val.includes(x.default_code) || val.includes(x.product_barcode))
+    var filtered_lines = this.stock_picking_id['moves_lines_ids'].filter(x => val.includes(x.lot_id[1]) || val.includes(x.lot_name)
+     || val.includes(x.package_id[1]) || val.includes(x.default_code) || val.includes(x.product_barcode))
 
     if(filtered_lines.length>0) {
       let data = {'model': 'stock.move.line', 'id': filtered_lines[0]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': filtered_lines[0]['index'],
