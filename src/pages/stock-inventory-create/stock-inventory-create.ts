@@ -9,6 +9,7 @@ import { SoundsProvider } from '../../providers/sounds/sounds'
 import { WarehouseFormPage } from '../warehouse-form/warehouse-form';
 import { StockInventoryPage } from '../stock-inventory/stock-inventory';
 import { StockInventoryFormPage } from '../stock-inventory-form/stock-inventory-form';
+import { Storage } from '@ionic/storage';
 
 /**
  * Generated class for the StockInventoryCreatePage page.
@@ -55,7 +56,7 @@ export class StockInventoryCreatePage {
     })
   }
 
-  constructor(private changeDetectorRef: ChangeDetectorRef, public events: Events, private zone: NgZone, public navCtrl: NavController, public navParams: NavParams, private stockInfo: StockProvider, public alertCtrl: AlertController, public fb: FormBuilder, public scanner: ScannerProvider, private sound: SoundsProvider, public formBuilder: FormBuilder ) {
+  constructor(private storage: Storage, private changeDetectorRef: ChangeDetectorRef, public events: Events, private zone: NgZone, public navCtrl: NavController, public navParams: NavParams, private stockInfo: StockProvider, public alertCtrl: AlertController, public fb: FormBuilder, public scanner: ScannerProvider, private sound: SoundsProvider, public formBuilder: FormBuilder ) {
     this.ScanReader = this.formBuilder.group({scan: ['']});
     this.model = Number(this.navParams.data.model)
     this.step = 0
@@ -80,9 +81,18 @@ export class StockInventoryCreatePage {
     this.inventory_move['lot_id'] = {}
     this.inventory_move['move_lines'] = {}
     this.inventory_move['name'] = false
+    this.inventory_move['company_id'] = false
+    this.get_selected_warehouse()
     this.product_barcode = false
     this.inventory_move['date'] = new Date().toLocaleDateString();
     this.last_location_read = false
+  }
+
+  get_selected_warehouse(){
+    this.storage.get('selected_warehouse').then((val) => {
+      this.inventory_move['company_id'] = val
+      this.changeDetectorRef.detectChanges()
+    })
   }
 
   ionViewDidLoad() {

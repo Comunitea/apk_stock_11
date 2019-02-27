@@ -228,6 +228,10 @@ export class StockMoveFormPage {
       }
       
     } else {
+
+      if(this.step == 2){
+       this.step = 1   
+      }
       
       switch (this.step) {
 

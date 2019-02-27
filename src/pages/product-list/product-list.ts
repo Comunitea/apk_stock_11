@@ -7,6 +7,7 @@ import { Storage } from '@ionic/storage';
 import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
 import { ProductFormPage } from '../product-form/product-form';
+import { isDifferent } from '@angular/core/src/render3/util';
 
 
 /**
@@ -32,6 +33,8 @@ export class ProductListPage {
   total_products: any
   total_pages: any
   arrow_movement: boolean
+  hide_scan_form: boolean
+  current_id: any
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -64,6 +67,7 @@ export class ProductListPage {
 
   constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
         private productInfo: ProductProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
+        this.ScanReader = this.formBuilder.group({scan: ['']});
         this.product_type_filter = 0
         this.actual_page = 0
         this.checkActualPage()
@@ -98,20 +102,36 @@ export class ProductListPage {
   }
  
   scan_read(val){
-    
+    this.productInfo.get_product_by_barcode(val).then((lineas:Array<{}>) => {
+      if(lineas) {
+        var id = lineas[0]['product_tmpl_id'][0]
+        this.open_pick(id, 0)
+      }
+    }).catch((mierror) => {
+      console.log(mierror)
+      this.stock_product_ids = []
+      this.productInfo.presentAlert('Error de conexión', 'Error al recuperar los pick')
+    })
   }
 
   toggle_scan_form() {
-    this.scanner.hide_scan_form = !this.scanner.hide_scan_form
+    this.hide_scan_form = !this.hide_scan_form
     this.arrow_movement = !this.arrow_movement
     this.changeDetectorRef.detectChanges()
   }
 
-  open_pick(product_id: number = 0){
-   
-    this.sound.play('nav')
-    let val = {'index': product_id, 'product_ids': this.current_product_ids, 'current_page': this.actual_page}
-    this.navCtrl.setRoot(ProductFormPage, val)
+  open_pick(product_id: number = 0, type=1){
+
+    if(type==1){
+      this.sound.play('nav')
+      let val = {'index': product_id, 'product_ids': this.current_product_ids, 'current_page': this.actual_page}
+      this.navCtrl.setRoot(ProductFormPage, val)
+    } else {
+      this.sound.play('nav')
+      this.current_product_ids = [product_id]
+      let val = {'index': product_id, 'product_ids': this.current_product_ids, 'current_page': 0}
+      this.navCtrl.setRoot(ProductFormPage, val)
+    }
 
   }
 
@@ -123,18 +143,12 @@ export class ProductListPage {
    return domain
   }
 
-  submitScan(value=false){
-    let scan
-    if (!this.ScanReader.value['scan']){
-      this.sound.startListening()
+  submitScan(value: any):void {
+    /* El submit para las pruebas sin pistola. */
+    if(value.scan) {
+      this.scan_read(value.scan)
     }
-    scan = value && this.ScanReader.value['scan']
-    for (let l in this.stock_product_ids){
-      if (this.stock_product_ids[l]['name'] == scan){
-        this.open_pick(this.stock_product_ids[l]['id'])
-      }}
-    this.sound.recon_voice([this.ScanReader.value['scan']])  
-    
+    this.changeDetectorRef.detectChanges()
   }
 
   initStockProduct(val){

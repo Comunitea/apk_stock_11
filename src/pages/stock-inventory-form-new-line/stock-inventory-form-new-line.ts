@@ -146,10 +146,6 @@ export class StockInventoryFormNewLinePage {
 
   scan_read(val){
 
-    console.log("step " + this.step)
-    console.log(this.possible_quants)
-    console.log(val)
-
     this.lot_error = false
     this.pkg_error = false
     this.product_error = false
@@ -298,7 +294,6 @@ export class StockInventoryFormNewLinePage {
       }
 
       case 3: {
-        console.log(this.unconfirmed_quants)
 
         this.confirm_qty_before_insert(val, 3)
 
@@ -436,6 +431,9 @@ export class StockInventoryFormNewLinePage {
       } else {
         this.previous_line_error = true
       }
+    }).catch((mierror) => {
+      this.stockInfo.presentAlert('Error de conexión', mierror)
+      this.cargar=false
     })
 
   }

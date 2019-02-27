@@ -116,8 +116,6 @@ export class StockInventoryFormLinePage {
 
   scan_read(val){
 
-    console.log(val)
-
     this.lot_error = false
     this.pkg_error = false
     this.product_error = false
@@ -127,14 +125,13 @@ export class StockInventoryFormLinePage {
       if(this.check_vals(val, this.qty_mod)) {
         
         this.stockInfo.update_inventory_line_product_qty(this.inventory_line_id['id'], val).then((lines:Array<{}>) => {
-          console.log(lines)
           if(lines) {
             this.changeDetectorRef.detectChanges()
             this.next_or_out()
           }
         })
         .catch((mierror) => {
-          this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar las líneas.')
+          this.stockInfo.presentAlert('Error de conexión', mierror)
           this.cargar=false
         })
         this.changeDetectorRef.detectChanges()
@@ -249,8 +246,6 @@ export class StockInventoryFormLinePage {
   set_line_data(move_data) {
     this.inventory_line_id = move_data
     this.changeDetectorRef.detectChanges()
-
-    console.log(this.inventory_line_id)
   }
 
   move_to_inventory(id) {

@@ -256,5 +256,24 @@ export class ProductProvider {
     return promise
   }
 
+  get_product_by_barcode(val) {
+    var self = this
+    var val = val
+    var domain = ['|', ['barcode', '=', val], ['default_code', '=', val]]
+
+    var model = 'product.product'
+    var fields = this.STOCK_FIELDS[model]['form']
+    var promise = new Promise( (resolve, reject) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+        for (var sm_id in data){data[sm_id]['model'] = model}
+          resolve(data)
+      })
+      .catch((err) => {
+        reject(err)
+    });
+    })
+    return promise
+  }
+
   
 }

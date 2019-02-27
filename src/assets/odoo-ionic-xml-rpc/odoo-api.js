@@ -57,6 +57,7 @@ this.login = function(user, password) {
             },
             error: function(jqXHR, status, error) {
                 odoo_api.uid = false;
+                alert(error['type'])
                 reject()
             }
         });    
@@ -89,6 +90,7 @@ this.search = function(model, domain) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -125,6 +127,7 @@ this.search_read = function(model, domain, fields, offset, limit, order) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -153,6 +156,7 @@ this.read = function(model, ids, fields) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -182,6 +186,7 @@ this.write = function(model, id, data) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -211,6 +216,7 @@ this.create = function(model, data) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -240,6 +246,7 @@ this.delete = function(model, ids) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -269,6 +276,7 @@ this.call = function(model, method, values) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    
@@ -302,6 +310,7 @@ this.call2 = function(model, method, args) {
                 }
             },
             error: function(jqXHR, status, error) {
+                alert(error['type'])
                 reject()
             }
         });    

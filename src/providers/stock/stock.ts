@@ -692,7 +692,8 @@ export class StockProvider {
       'package_id': values['package_id'][0],
       'product_id': values['product_id'][0],
       'name': values['name'],
-      'state': 'draft'
+      'state': 'draft',
+      'company_id': values['company_id']
     }
 
     model = 'stock.inventory'
