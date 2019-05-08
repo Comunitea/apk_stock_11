@@ -130,7 +130,7 @@ export class PickingListPage {
 
   initStockPicking(){
     var domain = this.get_picking_domain()
-    domain.push(['picking_type_id','in',this.picking_type_init_filter])
+    //domain.push(['picking_type_id','in',this.picking_type_init_filter])
     domain.push(['company_id', '=', this.default_warehouse])
     this.stockInfo.get_stock_picking(domain).then((picks)=> {
       this.stock_picking_ids = []

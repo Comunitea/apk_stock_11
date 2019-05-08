@@ -120,7 +120,7 @@ export class StockProvider {
     var picking_type_domain=[[]]
     var self = this
     if (domain){
-      picking_type_domain.push(domain)
+        picking_type_domain.push(domain)
       }
     var model = 'stock.picking.type'
     var fields = this.STOCK_FIELDS[model]['form']
@@ -290,9 +290,7 @@ export class StockProvider {
       'lot_name': values['lot_id'][1],
       'result_package_id': values['result_package_id'][0],
       'location_id': values['location_id'][0],
-      'location_dest_id': values['location_dest_id'][0],
-      'barcode': values['barcode'],
-      'barcode_dest': values['barcode_dest']
+      'location_dest_id': values['location_dest_id'][0]
     }
     
     var promise = new Promise( (resolve, reject) => {
