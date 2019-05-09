@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
 import { StockProvider } from '../../providers/stock/stock'
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
@@ -8,7 +8,6 @@ import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
 import { PickingFormPage } from '../picking-form/picking-form';
 import { NewPickingFormPage } from '../new-picking-form/new-picking-form';
-import { PickingListPage } from '../picking-list/picking-list';
 import { StockMoveFormPage } from '../stock-move-form/stock-move-form'
 
 
@@ -36,8 +35,6 @@ export class StockMoveListPage {
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    let code 
-    code = this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
       this.scan_read(val)
     })
@@ -45,7 +42,7 @@ export class StockMoveListPage {
     }
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
-        private stockInfo: StockProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
+        private stockInfo: StockProvider, private scanner: ScannerProvider) {
         this.move_state_filter = 0
         this.move_status = []
         this.move_status[0] = {
@@ -160,11 +157,10 @@ export class StockMoveListPage {
   }
  
   submitScan(value=false){
-    let scan
     if (!this.ScanReader.value['scan']){
       this.sound.startListening()
     }
-    scan = value && this.ScanReader.value['scan']
+    this.ScanReader.value['scan']
     this.sound.recon_voice([this.ScanReader.value['scan']])  
     
   }

@@ -121,7 +121,7 @@
         </ion-col>
       <ion-col text-end *ngIf="!move['move_line_ids']" >
         <ion-badge (click)="open_form_move_line (move['model'], move['id'], i)" *ngIf="move['state'] != 'done' && stock_picking_id['picking_type_id'][2]"  color="odoo">
-          {{ move['qty_done']}} de {{ move['product_uom_qty']}} {{move['product_uom'] && move['product_uom'][1]}}
+          {{ move['qty_done']}} de {{ move['ordered_qty']}} {{move['product_uom'] && move['product_uom'][1]}}
         </ion-badge>
         <ion-badge *ngIf="move['state'] == 'done'" color="state_done">
           {{ move['product_uom_qty']}} {{move['product_uom'] &&   move['product_uom'][1]}}

@@ -1,9 +1,9 @@
 page-move-line-form {
-    .red-icon {
+    .red-icon, .red-icon a {
         color: red;
     }
 
-    .orange-icon {
+    .orange-icon, .orange-icon a {
         color: orange;
     }
 
@@ -40,4 +40,5 @@ page-move-line-form {
         font-size: 1.3rem;
         margin: 8px 8px 8px 0px;
     }
+
 }

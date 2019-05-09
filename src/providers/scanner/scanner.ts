@@ -43,7 +43,7 @@ export class ScannerProvider {
 
     key_press(event){
         //console.log(event)
-        let st = ("Me llega " + event.which + '[' + event.keyCode + ' ]' + " y tengo " + this.code)
+        //let st = ("Me llega " + event.which + '[' + event.keyCode + ' ]' + " y tengo " + this.code)
         //console.log(st)
         //this.odootools.presentToast(st)
         

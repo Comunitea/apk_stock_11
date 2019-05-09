@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { OdooProvider } from '../odoo/odoo';
-import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 
 /*
@@ -51,11 +51,10 @@ export class ProductProvider {
 
     offset = offset*50
     
-    var self = this
     var model = 'product.template'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, offset, limit).then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, offset, limit).then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -69,11 +68,10 @@ export class ProductProvider {
 
   get_last_movements(domain, type='form'){
     
-    var self = this
     var model = 'stock.move'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 5, 'id DESC').then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 5, 'id DESC').then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -87,11 +85,10 @@ export class ProductProvider {
 
   get_product_real_id(domain, type='form'){
     
-    var self = this
     var model = 'product.product'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 1).then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 1).then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -104,12 +101,11 @@ export class ProductProvider {
   }
 
   get_last_lots(domain, type='tree'){
-    
-    var self = this
+  
     var model = 'stock.production.lot'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 5, 'id DESC').then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 5, 'id DESC').then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -123,11 +119,10 @@ export class ProductProvider {
 
   get_lot_info(domain, type='form'){
     
-    var self = this
     var model = 'stock.production.lot'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0,).then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 0,).then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -141,11 +136,10 @@ export class ProductProvider {
 
   get_lot_lines(domain, type='form'){
     
-    var self = this
     var model = 'stock.move.line'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0, 'date DESC').then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 0, 'date DESC').then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -167,13 +161,12 @@ export class ProductProvider {
   }
 
   get_total_products() {
-    var self = this
     var model 
     var domain = [['type', '=', 'product']]
      
     model = 'product.template'
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.execute(model, 'search_count', domain).then((done) => {
+      this.odooCon.execute(model, 'search_count', domain).then((done) => {
        resolve(done)
       })
       .catch((err) => {
@@ -186,7 +179,6 @@ export class ProductProvider {
   }
 
   get_next_template_id(name, option){
-    var self = this
     var model
     if (option == 0) {
       var domain = [['name', '<', name], ['type', '=', 'product']]
@@ -200,7 +192,7 @@ export class ProductProvider {
     var type = 'id'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -213,7 +205,6 @@ export class ProductProvider {
   }
 
   get_last_product_id(){
-    var self = this
     var model
     var domain = [['type', '=', 'product']]
     var filter = 'name DESC'
@@ -223,7 +214,7 @@ export class ProductProvider {
     var type = 'id'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
        resolve(sp_ids)
       })
       .catch((err) => {
@@ -235,7 +226,6 @@ export class ProductProvider {
   }
 
   get_first_product_id(){
-    var self = this
     var model
     var domain = [['type', '=', 'product']]
     var filter = 'name ASC'
@@ -245,7 +235,7 @@ export class ProductProvider {
     var type = 'id'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
+      this.odooCon.search_read(model, domain, fields, 0, 1, filter).then((sp_ids) => {
        resolve(sp_ids)
       })
       .catch((err) => {
@@ -257,14 +247,13 @@ export class ProductProvider {
   }
 
   get_product_by_barcode(val) {
-    var self = this
     var val = val
     var domain = ['|', ['barcode', '=', val], ['default_code', '=', val]]
 
     var model = 'product.product'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      this.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })

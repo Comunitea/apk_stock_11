@@ -1,12 +1,10 @@
 import { Component, ViewChild, NgZone, ChangeDetectorRef } from '@angular/core';
 import { IonicPage, NavController, NavParams, AlertController, Events } from 'ionic-angular';
 import { StockProvider } from '../../providers/stock/stock'
-import { PickingFormPage } from '../picking-form/picking-form';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HostListener } from '@angular/core';
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
-import { WarehouseFormPage } from '../warehouse-form/warehouse-form';
 import { StockInventoryPage } from '../stock-inventory/stock-inventory';
 import { StockInventoryFormPage } from '../stock-inventory-form/stock-inventory-form';
 import { Storage } from '@ionic/storage';

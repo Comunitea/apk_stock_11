@@ -196,10 +196,11 @@ export class MoveLineFormPage {
   }
 
   get_move_data(id) {
-    var domain = [['id', '=', id]]
 
-    this.stockInfo.get_stock_move(domain, 'form', 'stock.move.line').then((lines:Array<{}>)=> {
-      this.move_data = lines[0]
+    this.stockInfo.get_component_info(id, 'stock.move.line').then((lines:Array<{}>)=> {
+      this.move_data = lines
+      console.log(lines)
+      
       this.changeDetectorRef.detectChanges();
 
       /* Dependiendo del tipo de transferencia ponemos a true los datos que no necesitamos comprobar. */
@@ -228,6 +229,7 @@ export class MoveLineFormPage {
 
       if(!this.move_data['need_check']) {
         this.original_location_barcode = true
+        this.step = 1
         this.changeDetectorRef.detectChanges();
       }
 
@@ -331,7 +333,7 @@ export class MoveLineFormPage {
             this.package_origin_confirm = true
             this.original_location_barcode = true
             this.product_barcode == true
-            this.move_data['qty_done'] = this.move_data['product_qty']
+            this.move_data['qty_done'] = this.move_data['ordered_qty']
             if(this.location_barcode == true ) {
               this.step = 4
             } else {
@@ -430,6 +432,34 @@ export class MoveLineFormPage {
     }
   }
 
+  manual_qty_done(){
+    const prompt = this.alertCtrl.create({
+      title: 'Nueva cantidad',
+      message: 'Introduce una nueva cantidad',
+      inputs: [
+        {
+          name: 'Cantidad'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: data => {
+            console.log('Cambio cancelado')
+          }
+        },
+        {
+          text: 'OK',
+          handler: data => {
+            this.new_product_qt = data['Cantidad']
+            this.scan_read(data['Cantidad'])
+          }
+        }
+    ]
+    });
+    prompt.present();
+  }
+
   check_if_code_is_in_line_ids(val) {
     var filtered_lines = this.navParams.data.lines_ids.filter(x => (val.includes(x.lot_id[1]) || val.includes(x.lot_name)
      || val.includes(x.package_id[1]) || val.includes(x.default_code) || val.includes(x.product_barcode)) && x.id != this.id)
@@ -514,7 +544,7 @@ export class MoveLineFormPage {
 
   check_step(step) {
     if(step == 2) {
-      this.move_data['qty_done'] = this.move_data['product_qty']
+      this.move_data['qty_done'] = this.move_data['ordered_qty']
       this.product_qty_confirmed = true
     } 
   }
@@ -530,7 +560,7 @@ export class MoveLineFormPage {
       /* Si no existe una cantidad máxima es que no se ha modificado el origen, por lo tanto la cantidad máxima será la del albarán. */
       if(!this.new_product_max_qty) {
         /* Revisar si se usa product_qty o product_uom_qty */
-        this.new_product_max_qty = this.move_data['product_qty']
+        this.new_product_max_qty = this.move_data['ordered_qty']
       }
       /* Comprobamos que el valor no sea mayor que la cantidad máxima que podemos mover de ese producto. */
       if(val <= this.new_product_max_qty) {
@@ -661,9 +691,9 @@ export class MoveLineFormPage {
     this.stockInfo.picking_line_to_done('stock.move.line', this.id, this.move_data).then((lines:Array<{}>) => {
       let next_line = this.index_lines + 1
       if(next_line >= this.max_ids) {
-        this.backToPickingForm(lines, this.move_data['product_qty'])
+        this.backToPickingForm(lines, this.move_data['ordered_qty'])
       } else {
-        this.nextPickingFormLine(lines, this.move_data['product_qty'], next_line)
+        this.nextPickingFormLine(lines, this.move_data['ordered_qty'], next_line)
       }
     }).catch((err) => {
         console.log(err)

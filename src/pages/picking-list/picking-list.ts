@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
 import { StockProvider } from '../../providers/stock/stock'
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
@@ -33,8 +33,6 @@ export class PickingListPage {
   
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    let code 
-    code = this.scanner.key_press(event)
     this.scanner.timeout.then((val)=>{
       console.log(val)
       this.scan_read(val)
@@ -43,7 +41,7 @@ export class PickingListPage {
     }
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
-        private stockInfo: StockProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
+        private stockInfo: StockProvider, private scanner: ScannerProvider) {
         this.picking_type_filter = 0
         this.picking_type_init_filter = []
         this.get_selected_warehouse()

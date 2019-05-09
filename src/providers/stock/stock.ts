@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { OdooProvider } from '../odoo/odoo';
-import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 
 /*
@@ -174,6 +174,22 @@ export class StockProvider {
         console.log("Error buscando " + model)
     });
     })
+    return promise
+  }
+
+  get_component_info(id, model) {
+
+    let promise = new Promise( (resolve, reject) => {
+      this.odooCon.execute(model, 'get_component_info', id).then((done) => {
+        resolve(done)
+      }).catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+      });
+    }).catch((err) => {
+      console.log(err)
+    });
+    
     return promise
   }
   

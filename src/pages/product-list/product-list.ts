@@ -1,14 +1,11 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
 import { ProductProvider } from '../../providers/products/products'
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
-import { Storage } from '@ionic/storage';
 import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
 import { ProductFormPage } from '../product-form/product-form';
-import { isDifferent } from '@angular/core/src/render3/util';
-
 
 /**
  * Generated class for the ProductListPage page.
@@ -65,7 +62,7 @@ export class ProductListPage {
     })
   }
 
-  constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private storage: Storage, private sound: SoundsProvider, 
+  constructor(private changeDetectorRef: ChangeDetectorRef, public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController, private sound: SoundsProvider, 
         private productInfo: ProductProvider, private formBuilder: FormBuilder, private scanner: ScannerProvider) {
         this.ScanReader = this.formBuilder.group({scan: ['']});
         this.product_type_filter = 0

@@ -3,12 +3,8 @@ import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angu
 import { StockProvider } from '../../providers/stock/stock'
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
-import { Storage } from '@ionic/storage';
 import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
-import { PickingListPage } from '../picking-list/picking-list';
-import { MoveFormPage } from '../move-form/move-form'
-import { MoveLineFormPage } from '../move-line-form/move-line-form'
 import { StockInventoryPage } from '../stock-inventory/stock-inventory';
 import { StockInventoryFormLinePage } from '../stock-inventory-form-line/stock-inventory-form-line';
 import { StockInventoryFormNewLinePage } from '../stock-inventory-form-new-line/stock-inventory-form-new-line';

@@ -139,7 +139,7 @@ export class HomePage {
                     this.storage.set('USER', value).then(() => {
                     this.cargar=false
                     if(value[0]['company_ids'].length == 1) {
-                        this.storage.set('selected_warehouse', value[0]['company_id']).then(() => {
+                        this.storage.set('selected_warehouse', value[0]['company_id'][0]).then(() => {
                             this.navCtrl.setRoot(PickingListPage);
                         })
                     } else {
