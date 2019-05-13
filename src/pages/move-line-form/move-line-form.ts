@@ -1,12 +1,12 @@
 import { Component, ViewChild, NgZone, ChangeDetectorRef } from '@angular/core';
 import { IonicPage, NavController, NavParams, AlertController, Events } from 'ionic-angular';
 import { StockProvider } from '../../providers/stock/stock'
-import { PickingFormPage } from '../picking-form/picking-form';
+import { PickingFormPage } from '../../pages/picking-form/picking-form';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HostListener } from '@angular/core';
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
-import { WarehouseFormPage } from '../warehouse-form/warehouse-form';
+import { WarehouseFormPage } from '../../pages/warehouse-form/warehouse-form';
 
 /**
  * Generated class for the MoveLineFormPage page.
@@ -451,7 +451,7 @@ export class MoveLineFormPage {
         {
           text: 'OK',
           handler: data => {
-            this.new_product_qt = data['Cantidad']
+            this.new_qt_check(data['Cantidad'])
             this.scan_read(data['Cantidad'])
           }
         }
@@ -628,32 +628,6 @@ export class MoveLineFormPage {
       })
     }
     this.changeDetectorRef.detectChanges()
-  }
-
-  check_if_location_dest_is_needed(id) {
-    /* Comprueba si está marcado el check, si no lo está entonces el flag de location se pone a true */
-    this.stockInfo.check_if_need_dest_check(id).then((lines:Array<{}>) => {
-      if(!lines[0]['need_dest_check']) {
-        this.location_to_true(0)
-      }
-    })
-  }
-
-  check_if_original_location_is_needed(id) {
-    /* Comprueba si está marcado el check, si no lo está entonces el flag de original location se pone a true */
-    this.stockInfo.check_if_need_check(id).then((lines:Array<{}>) => {
-      if(!lines[0]['need_check']) {
-        this.location_to_true(1)
-      }
-    })
-  }
-
-  location_to_true(type) {
-    if(type == 0) {
-      this.location_barcode = true
-    } else if (type == 1) {
-      this.original_location_barcode = true
-    }
   }
 
   input_confirm(){

@@ -1,0 +1,28 @@
+<!-- Generated template for the StaticMoveComponent component -->
+<ion-card *ngIf="move_data">
+  <ion-card-header>
+      <span *ngIf="move_data['display_name']">
+        <strong>Movimiento:</strong>[{{move_data['id']}}] {{ move_data['display_name'] }}<br/>
+        <strong>Albarán:</strong> {{ move_data['picking_id'][1] }}<br/>
+        <strong>Estado:</strong> {{ move_data['state'] }}<br/>
+      </span>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list>
+      <span>
+          <span *ngIf="move_data['location_id']">
+            <strong>Origen:</strong> {{ move_data['location_id'][1] }}<br/>
+          </span>
+          <span *ngIf="move_data['name']">
+            <strong>Producto:</strong> {{ move_data['name'] }}<br/>
+          </span>
+          <span *ngIf="move_data['product_qty']">
+            <strong>Cantidad:</strong> {{ move_data['product_qty'] }}<br/>
+          </span>
+          <span *ngIf="move_data['location_dest_id']">
+            <strong>Destino:</strong> {{ move_data['location_dest_id'][1] }}<br/>
+          </span>
+      </span>
+    </ion-list>
+  </ion-card-content>
+</ion-card>

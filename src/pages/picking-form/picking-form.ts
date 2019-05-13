@@ -3,7 +3,6 @@ import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angu
 import { StockProvider } from '../../providers/stock/stock'
 import { ScannerProvider } from '../../providers/scanner/scanner'
 import { SoundsProvider } from '../../providers/sounds/sounds'
-import { Storage } from '@ionic/storage';
 import { HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms'; 
 import { PickingListPage } from '../picking-list/picking-list';
@@ -142,48 +141,16 @@ export class PickingFormPage {
   }
 
   get_picking_id(id){
-    console.log(id)
-    var domain = [['id', '=', id]]
-    this.stockInfo.get_stock_picking(domain, 'form').then((picks:Array<{}>)=> {  
-
-      this.stockInfo.get_current_picking_type(picks[0]['picking_type_id'][0]).then((lines:Array<{}>) => {
-        picks[0]['picking_type_id'].push(lines[0]['code'])
-      })
-
-      this.stock_picking_id = picks[0]
-      this.changeDetectorRef.detectChanges()
-     
-      if (['done', 'assigned', 'partially_available'].indexOf(this.stock_picking_id['state'])!=-1){
-        this.move_model = this.stock_picking_id['state'] == 'done' && 'stock.move' || 'stock.move.line'
-        var domain_move = [['picking_id', '=', id]]
-        this.stockInfo.get_stock_move(domain_move, 'tree', this.move_model).then((moves:Array<{}>)=> {
-          
-          this.stock_picking_id['moves'] = moves
-          this.stock_picking_id['moves_lines_ids'] = this.stock_picking_id['moves']
-          
-          var cont = 0
-          this.stock_picking_id['moves_lines_ids'].forEach(x => {
-            x.index = cont
-            cont++
-          })
-
-          this.check_state()
-          this.cargar=false
-          this.changeDetectorRef.detectChanges()
-        })
-        .catch((mierror) => {
-          this.stock_picking_id['moves'] = []
-          this.stock_picking_id['moves_lines_ids'] = this.stock_picking_id['moves']
-          this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar los movimientos del albarán')
-          this.cargar=false
-          this.changeDetectorRef.detectChanges()
-        })
-      }
+    
+    this.stockInfo.get_component_info(id, 'stock.picking').then((lines:Array<{}>)=> {
+      console.log(lines)
+      this.stock_picking_id = lines
+      this.changeDetectorRef.detectChanges();
+      this.cargar=false
+      this.check_state()
     })
     .catch((mierror) => {
-      this.stock_picking_id = []
-      this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar el pick')
-      this.cargar=false
+      this.stockInfo.presentAlert('Error de conexión', 'Error al recuperar el pick: '+ mierror)
     })
     return
   }

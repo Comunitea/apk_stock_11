@@ -33,8 +33,7 @@ import { ProductProvider } from '../providers/products/products';
 import { SoundsProvider } from '../providers/sounds/sounds';
 import { OdooProvider } from '../providers/odoo/odoo';
 import { StockProvider } from '../providers/stock/stock';
-
-
+import { StaticMoveComponent } from '../components/static-move/static-move'
 
 @NgModule({
   declarations: [
@@ -54,7 +53,8 @@ import { StockProvider } from '../providers/stock/stock';
     StockInventoryFormLinePage,
     StockInventoryFormNewLinePage,
     StockMoveListPage,
-    StockMoveFormPage
+    StockMoveFormPage,
+    StaticMoveComponent
   ],
   imports: [
     BrowserModule,
