@@ -9,7 +9,7 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>{{move_data && move_data['product_short_name'] || 'Líneas' }}</ion-title>
+    <ion-title>{{move_data && move_data['product_id']['name'] || 'Líneas' }}</ion-title>
   <ion-buttons end>
   <button ion-button icon-only item-end (click)="lee_form()">
     <ion-icon name="megaphone"></ion-icon>
@@ -56,36 +56,36 @@
       </ion-card-header>
       <ion-card-content>
         <ion-list>
-          <span *ngIf="move_data['package_id'] && move_data['package_id'][0]" [ngClass]="{'red-icon': pkg_error, 'green-icon': package_origin_confirm}">
-            <a *ngIf="step < 1; else notLnkPkg" (click)="scan_read(move_data['package_id'][1])">
-              <strong>Paquete:</strong> {{ move_data['package_id'][1] }}<br/>
+          <span *ngIf="move_data['package_id'] && move_data['package_id']['id']" [ngClass]="{'red-icon': pkg_error, 'green-icon': package_origin_confirm}">
+            <a *ngIf="step < 1; else notLnkPkg" (click)="scan_read(move_data['package_id']['name'])">
+              <strong>Paquete:</strong> {{ move_data['package_id']['name'] }}<br/>
             </a>
           </span>
     
           <span *ngIf="move_data['location_id']" [ngClass]="{'red-icon': location_error, 'green-icon': original_location_barcode, 'orange-icon': new_origin_location_id}">
-            <strong>Origen:</strong> {{ move_data['original_location_short_name'] || move_data['location_id'][1] }}<br/>
+            <strong>Origen:</strong> {{ move_data['location_id']['name'] }}<br/>
           </span>
         </ion-list>
     
         <ion-list>
-          <span *ngIf="move_data['lot_name'] || (move_data['lot_id'] && move_data['lot_id'][1])" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
-            <a *ngIf="step == 1; else notLnkLot" (click)="check_product_code(move_data['lot_name'] || move_data['lot_id'][1],1)">
-                <strong>Lote:</strong> {{ move_data['lot_name'] || move_data['lot_id'][1] }}<br/>
+          <span *ngIf="move_data['lot_id'] && move_data['lot_id']['name']" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <a *ngIf="step == 1; else notLnkLot" (click)="check_product_code(move_data['lot_id']['name'],1)">
+                <strong>Lote:</strong> {{ move_data['lot_id']['name'] }}<br/>
             </a>
           </span>
     
-          <span *ngIf="(!move_data['lot_name'] && !move_data['lot_id']) && (move_data['product_barcode'] || move_data['default_code'])" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
-            <strong>Código de barras/Ref:</strong> {{ move_data['product_barcode'] || move_data['default_code'] }}<br/>
+          <span *ngIf="!move_data['lot_id'] && (move_data['product_id']['barcode'] || move_data['product_id']['default_code'])" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <strong>Código de barras/Ref:</strong> {{ move_data['product_id']['barcode'] || move_data['product_id']['default_code'] }}<br/>
           </span>
     
-          <span *ngIf="move_data['product_id'] && (move_data['product_barcode'] || move_data['default_code'])" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
-            <a *ngIf="(step == 1 && !product_need_check); else notLnkProduct" (click)="check_product_code(move_data['product_barcode'] || move_data['default_code'], 1)">
-              <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] || move_data['display_name'] }}<br/>
+          <span *ngIf="move_data['product_id'] && (move_data['product_id']['barcode'] || move_data['product_id']['default_code'])" [ngClass]="{'red-icon': product_error, 'green-icon': product_barcode}">
+            <a *ngIf="(step == 1 && !product_need_check); else notLnkProduct" (click)="check_product_code(move_data['product_id']['barcode'] || move_data['product_id']['default_code'], 1)">
+              <strong>Producto:</strong> {{ move_data['product_id']['name'] }}<br/>
             </a>
           </span>
           
-          <span *ngIf="(move_data['lot_id']|| move_data['default_code'] || move_data['product_barcode'] || move_data['lot_name'])" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
-            <a *ngIf="step == 2; else notLnkQty" (click)="check_product_code(move_data['lot_id'][1] || move_data['default_code'] || move_data['product_barcode'] || move_data['lot_name'], 2)">
+          <span *ngIf="(move_data['lot_id']|| move_data['product_id']['default_code'] || move_data['product_id']['barcode'])" [ngClass]="{'red-icon': qty_error, 'green-icon': product_qty_confirmed, 'orange-icon': new_product_qt}">
+            <a *ngIf="step == 2; else notLnkQty" (click)="check_product_code(move_data['lot_id']['name'] || move_data['product_id']['default_code'] || move_data['product_id']['barcode'], 2)">
               <strong>Cantidad:</strong> {{ move_data['qty_done'] }} de {{ move_data['ordered_qty'] }}
             </a>
             <button *ngIf="step == 2" class="button-pckg" ion-button item-end (click)="manual_qty_done()">
@@ -99,8 +99,8 @@
           <span *ngIf="change_location; else notDiffLocation" [ngClass]="{'orange-icon': change_location}">
             <strong>Destino:</strong> {{ new_location['location_name'] }}<br/>
           </span>
-          <span *ngIf="move_data['result_package_id'] && move_data['result_package_id'][0]">
-            <strong>Paquete Destino:</strong> {{ move_data['result_package_id'][1] }}<br/>
+          <span *ngIf="move_data['result_package_id'] && move_data['result_package_id']['id']">
+            <strong>Paquete Destino:</strong> {{ move_data['result_package_id']['name'] }}<br/>
           </span>
           <!-- <ion-item class="package-checker" *ngIf="!move_data['result_package_id']">
               <ion-label><strong>Nuevo paquete:</strong></ion-label> 
@@ -132,15 +132,15 @@
     </ion-card>
           
     <ng-template #notLnkPkg>
-      <strong>Paquete:</strong> {{ move_data['package_id'][1] }}<br/>
+      <strong>Paquete:</strong> {{ move_data['package_id']['name'] }}<br/>
     </ng-template>
     
     <ng-template #notLnkLot>
-      <strong>Lote:</strong> {{ move_data['lot_name'] || move_data['lot_id'][1] }}<br/>
+      <strong>Lote:</strong> {{ move_data['lot_id']['name'] }}<br/>
     </ng-template>
     
     <ng-template #notLnkProduct>
-      <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id'][2] || move_data['display_name'] }}<br/>
+      <strong>Producto:</strong> {{ move_data['product_short_name'] || move_data['product_id']['name'] || move_data['display_name'] }}<br/>
     </ng-template>
     
     <ng-template #notLnkQty>
@@ -149,7 +149,7 @@
     
     <ng-template #notDiffLocation>
       <span *ngIf="move_data['location_dest_id']" [ngClass]="{'red-icon': location_dest_error, 'green-icon': location_barcode, 'orange-icon': change_location}">
-        <strong>Destino:</strong> {{ move_data['final_location_short_name'] || move_data['location_dest_id'][1] }}<br/>
+        <strong>Destino:</strong> {{ move_data['location_dest_id']['name'] }}<br/>
       </span>
     </ng-template>
 

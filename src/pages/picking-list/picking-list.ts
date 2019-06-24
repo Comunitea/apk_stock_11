@@ -109,7 +109,7 @@ export class PickingListPage {
   initPickingTypes(){
     /* let domain = [['code', '=', 'outgoing']] */
     let domain = [['show_in_pda', '=', true]]
-    this.stockInfo.get_picking_types(domain).then((picks)=> {
+    this.stockInfo.get_picking_types(domain).then((picks:any)=> {
       this.picking_types = []
       for (var type in picks){
         picks[type]['index'] = type
@@ -130,7 +130,8 @@ export class PickingListPage {
     var domain = this.get_picking_domain()
     //domain.push(['picking_type_id','in',this.picking_type_init_filter])
     domain.push(['company_id', '=', this.default_warehouse])
-    this.stockInfo.get_stock_picking(domain).then((picks)=> {
+    this.stockInfo.get_stock_picking(domain).then((picks:any)=> {
+      console.log(picks)
       this.stock_picking_ids = []
       for (var pick in picks){
         picks[pick]['index']=pick

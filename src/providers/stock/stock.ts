@@ -146,7 +146,7 @@ export class StockProvider {
     var model = 'stock.picking'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -165,7 +165,7 @@ export class StockProvider {
     var domain = [['id', '=', id]]
 
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -181,6 +181,22 @@ export class StockProvider {
 
     let promise = new Promise( (resolve, reject) => {
       this.odooCon.execute(model, 'get_component_info', id).then((done) => {
+        resolve(done)
+      }).catch((err) => {
+        reject(false)
+        console.log("Error al validar")
+      });
+    }).catch((err) => {
+      console.log(err)
+    });
+    
+    return promise
+  }
+
+  get_stock_move_line_pda(values, model) {
+
+    let promise = new Promise( (resolve, reject) => {
+      this.odooCon.execute(model, 'get_stock_move_line_pda', values).then((done) => {
         resolve(done)
       }).catch((err) => {
         reject(false)
@@ -273,11 +289,11 @@ export class StockProvider {
     var model 
     var valores = {
       'picking_id': values['id'],
-      'location_dest_id': values['location_dest_id'],
-      'location_id': values['location_id'],
+      'location_dest_id': values['location_dest_id']['id'],
+      'location_id': values['location_id']['id'],
       'move_lines': values['move_lines'],
-      'move_lines_ids': values['moves'],
-      'picking_type_id': values['picking_type_id'],
+      'move_lines_ids': values['move_line_ids'],
+      'picking_type_id': values['picking_type_id']['id'],
     }
      
     model = 'stock.picking'
@@ -301,16 +317,16 @@ export class StockProvider {
     var move_id = move_id
     var valores = {
       'qty_done': values['qty_done'],
-      'package_id': values['package_id'][0],
-      'lot_id': values['lot_id'][0],
-      'lot_name': values['lot_id'][1],
-      'result_package_id': values['result_package_id'][0],
-      'location_id': values['location_id'][0],
-      'location_dest_id': values['location_dest_id'][0]
+      'package_id': values['package_id']['id'],
+      'lot_id': values['lot_id']['id'],
+      'lot_name': values['lot_id']['name'],
+      'result_package_id': values['result_package_id']['id'],
+      'location_id': values['location_id']['id'],
+      'location_dest_id': values['location_dest_id']['id']
     }
     
     var promise = new Promise( (resolve, reject) => {
-        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids) => {
+        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids:any) => {
           for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
           resolve(sp_ids)
         })
@@ -351,7 +367,7 @@ export class StockProvider {
     var model = 'product.product'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -370,7 +386,7 @@ export class StockProvider {
     var model = 'stock.production.lot'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -389,7 +405,7 @@ export class StockProvider {
     var model = 'product.product'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -408,7 +424,7 @@ export class StockProvider {
     var model = 'stock.location'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -427,7 +443,7 @@ export class StockProvider {
     var model = 'product.product'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)          
       })
@@ -446,7 +462,7 @@ export class StockProvider {
     var model = 'product.template'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -465,7 +481,7 @@ export class StockProvider {
     var model = 'stock.location'
     var fields = this.STOCK_FIELDS[model]['tree']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -484,7 +500,7 @@ export class StockProvider {
     var model = 'stock.location'
     var fields = this.STOCK_FIELDS[model]['check']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -506,7 +522,7 @@ export class StockProvider {
     }
     
     var promise = new Promise( (resolve, reject) => {
-        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids) => {
+        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids:any) => {
           for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
           resolve(sp_ids)
         })
@@ -529,7 +545,7 @@ export class StockProvider {
     }
     
     var promise = new Promise( (resolve, reject) => {
-        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids) => {
+        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids:any) => {
           for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
           resolve(sp_ids)
         })
@@ -549,7 +565,7 @@ export class StockProvider {
     var model = 'stock.quant.package'
     var fields = this.STOCK_FIELDS[model]['tree']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -616,7 +632,7 @@ export class StockProvider {
     var model = 'stock.inventory'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -637,7 +653,7 @@ export class StockProvider {
     var model = 'stock.inventory'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -655,7 +671,7 @@ export class StockProvider {
     var model = 'stock.inventory.line'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -754,7 +770,7 @@ export class StockProvider {
     }
     
     var promise = new Promise( (resolve, reject) => {
-        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids) => {
+        self.odooCon.update_lines(model, 'write', valores, move_id).then((sp_ids:any) => {
           for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
           resolve(sp_ids)
         })
@@ -772,7 +788,7 @@ export class StockProvider {
     var model = 'stock.move'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -789,7 +805,7 @@ export class StockProvider {
     var model = 'stock.move'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -808,7 +824,7 @@ export class StockProvider {
     var model = 'stock.location'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -844,7 +860,7 @@ export class StockProvider {
     var model = 'stock.quant.package'
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -864,7 +880,7 @@ export class StockProvider {
     var model = 'stock.production.lot'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -884,7 +900,7 @@ export class StockProvider {
     var model = 'stock.quant'
     var fields = this.STOCK_FIELDS[model]['form']
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((data) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((data:any) => {
         for (var sm_id in data){data[sm_id]['model'] = model}
           resolve(data)
       })
@@ -927,7 +943,7 @@ export class StockProvider {
     var domain = [['company_id', 'in', company_ids]]
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -1127,7 +1143,7 @@ export class StockProvider {
     var domain = [['warehouse_id', '=', warehouse_id], ['code', '=', 'internal']]
     var fields = this.STOCK_FIELDS[model][type]
     var promise = new Promise( (resolve, reject) => {
-      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids) => {
+      self.odooCon.search_read(model, domain, fields, 0, 0).then((sp_ids:any) => {
        for (var sm_id in sp_ids){sp_ids[sm_id]['model'] = model}
        resolve(sp_ids)
       })
@@ -1149,7 +1165,7 @@ export class StockProvider {
     }
     
     var promise = new Promise( (resolve, reject) => {
-        self.odooCon.update_lines(model, 'write', valores, id).then((sp_ids) => {
+        self.odooCon.update_lines(model, 'write', valores, id).then((sp_ids:any) => {
           resolve(sp_ids)
         })
         .catch((err) => {

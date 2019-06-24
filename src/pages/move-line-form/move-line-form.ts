@@ -196,8 +196,10 @@ export class MoveLineFormPage {
   }
 
   get_move_data(id) {
-
-    this.stockInfo.get_component_info(id, 'stock.move.line').then((lines:Array<{}>)=> {
+    let values = {
+      'line_id': id
+    }
+    this.stockInfo.get_stock_move_line_pda(values, 'stock.move.line').then((lines:Array<{}>)=> {
       this.move_data = lines
       console.log(lines)
       
@@ -222,29 +224,29 @@ export class MoveLineFormPage {
         }
       }
 
-      if(this.move_data['product_need_check']) {
+      if(this.move_data['checked']['product_id'] == true) {
         this.product_need_check = true
         this.changeDetectorRef.detectChanges();
       }
 
-      if(!this.move_data['need_check']) {
+      if(this.move_data['checked']['location_id'] == true) {
         this.original_location_barcode = true
         this.step = 1
         this.changeDetectorRef.detectChanges();
       }
 
-      if(!this.move_data['need_dest_check']) {
+      if(this.move_data['checked']['location_dest_id'] == true) {
         this.location_barcode = true
         this.changeDetectorRef.detectChanges();
       }
 
-      if(!this.move_data['package_id']){
-        this.package_origin = false
+      if(this.move_data['checked']['package_id'] == true){
+        this.package_origin = true
         this.changeDetectorRef.detectChanges();
       } 
 
-      if(!this.move_data['result_package_id']){
-        this.package_dest = false
+      if(this.move_data['checked']['result_package_id'] == true){
+        this.package_dest = true
         this.changeDetectorRef.detectChanges();
       }
 
@@ -287,7 +289,7 @@ export class MoveLineFormPage {
       this.repeat_read = false
       this.last_read = val
     }
-
+    console.log(this.location_barcode)
     switch (this.step) {
       case 0: {
         this.location_error = false
@@ -295,7 +297,7 @@ export class MoveLineFormPage {
 
         /* Primero comprobamos si lo que se ha introducido coincide con algún lote/paquete/producto de nuestra lista
         que no sea el movimiento actual */
-        if(this.move_data['package_id'][0] != val) {
+        if(this.move_data['package_id']['id'] != val) {
           this.check_if_code_is_in_line_ids(val)
         }
 
@@ -303,20 +305,20 @@ export class MoveLineFormPage {
         if(this.new_origin_location_id) {
           if (val == this.new_origin_location_barcode) {
             /* Si confirma el nuevo origen */
-            this.move_data['location_id'][0] = this.new_origin_location_id
-            this.move_data['location_id'][1] = this.new_origin_location_name
-            this.move_data['barcode'] = this.new_origin_location_barcode
+            this.move_data['location_id']['id'] = this.new_origin_location_id
+            this.move_data['location_id']['name'] = this.new_origin_location_name
+            this.move_data['location_id']['barcode'] = this.new_origin_location_barcode
             /* Cambiamos los valores de paquete y lote del nuevo origen. */
             if (this.new_product_lot_id && this.new_product_lot_name) {
               this.move_data['lot_id'] = {
-                '0': this.new_product_lot_id,
-                '1': this.new_product_lot_name
+                'id': this.new_product_lot_id,
+                'name': this.new_product_lot_name
               }
             }
             if (this.new_product_package_id && this.new_product_package_name) {
               this.move_data['package_id'] = {
-                '0': this.new_product_package_id,
-                '1': this.new_product_package_name
+                'id': this.new_product_package_id,
+                'name': this.new_product_package_name
               }
             }
             this.original_location_barcode = true
@@ -328,7 +330,7 @@ export class MoveLineFormPage {
 
         if(this.package_origin && !this.package_origin_confirm) {
           /* Si existe un paquete y se ha iniciado el proceso de confirmación comprobamos si valor es el nombre del paquete */
-          if (val == this.move_data['package_id'][1]) {
+          if (val == this.move_data['package_id']['name']) {
             /* Enviamos el proceso al paso 3, ya que el paquete verifica el origen, lote y cantidad */
             this.package_origin_confirm = true
             this.original_location_barcode = true
@@ -348,7 +350,7 @@ export class MoveLineFormPage {
           this.stockInfo.check_if_location_barcode(val).then((lines:Array<{}>) => {
             if(lines.length > 0) {
               /* Comprobamos que el código sea el que figura en el albarán. */
-              var name_line = lines[0]['location_id'][1] + '/' + lines[0]['name']
+              var name_line = lines[0]['location_id']['name'] + '/' + lines[0]['name']
               this.check_original_location_barcode(lines[0]['barcode'], lines[0]['id'], name_line)
             } else {
               this.location_error = true
@@ -363,7 +365,7 @@ export class MoveLineFormPage {
 
         /* En caso de que el campo need_check del origen no esté marcado buscamos el producto en el listado */
         
-        if(!this.move_data['need_check']) {
+        if(!this.move_data['checked']['location_id']) {
           this.check_if_code_is_in_line_ids(val)
         }
 
@@ -407,10 +409,10 @@ export class MoveLineFormPage {
         if(this.change_location) {
           if (val == this.new_location['barcode']) {
             this.move_data['location_dest_id'] = {
-              0: this.new_location['id'],
-              1: this.new_location['location_name']
+              'id': this.new_location['id'],
+              'name': this.new_location['location_name'],
+              'barcode': this.new_location['barcode']
             }
-            this.move_data['barcode_dest'] = this.new_location['barcode']
             this.location_barcode = true
             this.change_location = false
             this.step = 5
@@ -461,8 +463,8 @@ export class MoveLineFormPage {
   }
 
   check_if_code_is_in_line_ids(val) {
-    var filtered_lines = this.navParams.data.lines_ids.filter(x => (val.includes(x.lot_id[1]) || val.includes(x.lot_name)
-     || val.includes(x.package_id[1]) || val.includes(x.default_code) || val.includes(x.product_barcode)) && x.id != this.id)
+    var filtered_lines = this.navParams.data.lines_ids.filter(x => (val.includes(x.lot_id['name']) || val.includes(x.lot_name)
+     || val.includes(x.package_id['name']) || val.includes(x.default_code) || val.includes(x.product_barcode)) && x.id != this.id)
 
     if(filtered_lines.length>0) {
       let data = {'model': this.model, 'id': filtered_lines[0]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': filtered_lines[0]['index'],
@@ -504,7 +506,7 @@ export class MoveLineFormPage {
         this.changeDetectorRef.detectChanges()
       } else {
         /* Si no existe comprueba el código de barras. */
-        if(val == this.move_data['product_barcode'] || val == this.move_data['default_code']) {
+        if(val == this.move_data['product_id']['barcode'] || val == this.move_data['product_id']['default_code']) {
           this.product_barcode = true
           this.check_step(this.step)
           this.step = Number(step) + 1
@@ -523,7 +525,7 @@ export class MoveLineFormPage {
       }
     } else {
       /* Si tiene lot_id verifica que sea el mismo */
-      if(val == this.move_data['lot_id'][1]) {
+      if(val == this.move_data['lot_id']['name']) {
         this.product_barcode = true
         this.check_step(this.step)
         this.step = Number(step) + 1
@@ -581,7 +583,7 @@ export class MoveLineFormPage {
   check_location_barcode(barcode) {
     /* Comprueba el barcode de destino.
        Si no son iguales comprueba que el nuevo se corresponda con alguna ubicación, si es así inicia el proceso de cambio de ubicación. */
-    if(barcode == this.move_data['barcode_dest']) {
+    if(barcode == this.move_data['location_dest_id']['barcode']) {
       this.location_barcode = true
       this.step = 5
       this.input_confirm()
@@ -591,7 +593,7 @@ export class MoveLineFormPage {
           this.new_location = {
             'id': lines[0]['id'],
             'barcode': barcode,
-            'location_name': lines[0]['location_id'][1] + '/' + lines[0]['name']
+            'location_name': lines[0]['location_id']['name'] + '/' + lines[0]['name']
           }
           this.change_location = true
           this.changeDetectorRef.detectChanges()
@@ -602,7 +604,7 @@ export class MoveLineFormPage {
 
   check_original_location_barcode(barcode, id, name) {
     /* Comprueba que el código introducido sea el del origen */
-    if(barcode == this.move_data['barcode']) {
+    if(barcode == this.move_data['location_id']['barcode']) {
       this.original_location_barcode = true
       this.step = 1
     } else {
@@ -655,13 +657,7 @@ export class MoveLineFormPage {
     this.input_error = false
 
     /* En las entradas de mercancía no existe un lot_id pero tenemos que indicar igualmente el nombre del lote. */
-    if(this.picking_type == 'incoming') {
-      this.move_data['lot_id'] = {
-        '0': false,
-        '1': this.move_data['lot_name']
-      }
-      this.changeDetectorRef.detectChanges()
-    }
+    console.log(this.move_data)
     this.stockInfo.picking_line_to_done('stock.move.line', this.id, this.move_data).then((lines:Array<{}>) => {
       let next_line = this.index_lines + 1
       if(next_line >= this.max_ids) {
@@ -747,7 +743,7 @@ export class MoveLineFormPage {
       this.product_qty_confirmed = false
       this.new_product_qt = false
     } else if(this.step == 3) {
-      /* if(this.picking_type == 'outgoing' || !this.move_data['need_dest_check']) {
+      /* if(this.picking_type == 'outgoing' || !this.move_data['checked']['location_dest_id']) {
         this.location_barcode = true
         this.step = 4
       } else {

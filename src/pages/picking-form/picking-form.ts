@@ -156,12 +156,12 @@ export class PickingFormPage {
   }
 
   check_if_code_is_in_line_ids(val) {
-    var filtered_lines = this.stock_picking_id['moves_lines_ids'].filter(x => val.includes(x.lot_id[1]) || val.includes(x.lot_name)
-     || val.includes(x.package_id[1]) || val.includes(x.default_code) || val.includes(x.product_barcode))
+    var filtered_lines = this.stock_picking_id['move_line_ids'].filter(x => val.includes(x.lot_id['name']) || val.includes(x.lot_name)
+     || val.includes(x.package_id['name']) || val.includes(x.default_code) || val.includes(x.product_barcode))
 
     if(filtered_lines.length>0) {
       let data = {'model': 'stock.move.line', 'id': filtered_lines[0]['id'], 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': filtered_lines[0]['index'],
-     'lines_ids': this.stock_picking_id['moves_lines_ids'], 'picking_type': this.stock_picking_id['picking_type_id'][2], 'confirmation_code': val}
+     'lines_ids': this.stock_picking_id['move_line_ids'], 'picking_type': this.stock_picking_id['picking_type_id']['code'], 'confirmation_code': val}
       this.navCtrl.setRoot(MoveLineFormPage, data)
     }
      
@@ -174,7 +174,7 @@ export class PickingFormPage {
   }
 
   open_form_move_line (model, id, index){
-    let val = {'model': model, 'id': id, 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': index, 'lines_ids': this.stock_picking_id['moves'], 'picking_type': this.stock_picking_id['picking_type_id'][2]}
+    let val = {'model': model, 'id': id, 'index': this.navParams.data.index, 'picking_ids': this.navParams.data.picking_ids, 'index_lines': index, 'lines_ids': this.stock_picking_id['moves'], 'picking_type': this.stock_picking_id['picking_type_id']['code']}
 
     this.navCtrl.setRoot(MoveLineFormPage, val)
   }
@@ -241,16 +241,20 @@ export class PickingFormPage {
   }
 
   verificar_all_qty() {
-    this.stock_picking_id['moves_lines_ids'].forEach(line => {
-      this.verificar_qty(line['id'], 0)
+    this.stockInfo.line_to_done(this.stock_picking_id['move_line_ids']).then((resultado) => {
+      this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
+      this.changeDetectorRef.detectChanges()
+    }).catch((err) => {
+      console.log(err)
     });
+
     this.get_picking_id(this.navParams.data.picking_ids[this.index]['id'])
     this.changeDetectorRef.detectChanges()
   }
 
   all_qty_done_to_zero() {
     var lines_to_update = []
-    this.stock_picking_id['moves_lines_ids'].forEach(linea => {
+    this.stock_picking_id['move_line_ids'].forEach(linea => {
       if(linea['qty_done'] != 0){
         lines_to_update.push({
           'id': linea['id'],
