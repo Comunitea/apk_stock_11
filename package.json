@@ -36,6 +36,7 @@
     "hammerjs": "^2.0.8",
     "ionic-angular": "3.9.2",
     "ionicons": "3.0.0",
+    "kind-of": "^6.0.3",
     "mem": "^6.0.1",
     "node-sass": "^4.13.1",
     "odoo-xmlrpc": "^1.0.7",
